@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Nimbbl</string>
+    <string-array name="payment_choice_node">
+        <item>Webview</item>
+        <item>Native</item>
+    </string-array>
 </resources>
