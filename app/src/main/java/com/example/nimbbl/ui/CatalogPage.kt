@@ -6,7 +6,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.nimbbl.NimmblConfigActivity
+import com.example.nimbbl.NimbblConfigActivity
 import com.example.nimbbl.R
 import com.example.nimbbl.data.model.model.Catalog_Model
 import com.example.nimbbl.data.model.model.postbody.GenerateTokenbody
@@ -69,7 +69,7 @@ class CatalogPage : AppCompatActivity(), NimbblCheckoutPaymentListener, NimbblIn
         val preferences = getSharedPreferences("nimmbl_configs_prefs", MODE_PRIVATE)
         BASE_URL = preferences.getString("shop_base_url",BASE_URL).toString()
         tv_settings.setOnClickListener {
-            val intent = Intent(this,NimmblConfigActivity::class.java)
+            val intent = Intent(this,NimbblConfigActivity::class.java)
             startActivity(intent)
         }
     }
@@ -124,18 +124,18 @@ class CatalogPage : AppCompatActivity(), NimbblCheckoutPaymentListener, NimbblIn
         }
     }*/
 
-    override fun onPaymentSuccess(p0: MutableMap<String, Any>) {
-        Log.d("Nimbbl demo", Integer.toString(p0.size))
+    override fun onPaymentSuccess(data: MutableMap<String, Any>) {
+        Log.d("Nimbbl demo", Integer.toString(data.size))
         //val payload: MutableMap<String, Any>? =
         //    p0.get("payload") as MutableMap<String, Any>?
         Toast.makeText(
             this,
-            "OrderId=" + p0.get("order_id") + ", Status=" + p0.get("status"),
+            "OrderId=" + data.get("order_id") + ", Status=" + data.get("status"),
             Toast.LENGTH_LONG
         ).show()
         val intent = Intent(this, OrderSucessPageAcitivty::class.java)
-        intent.putExtra("orderid", p0.get("order_id").toString())
-        intent.putExtra("status", p0.get("status").toString())
+        intent.putExtra("orderid", data.get("order_id").toString())
+        intent.putExtra("status", data.get("status").toString())
         startActivity(intent)
 
     }
@@ -146,39 +146,24 @@ class CatalogPage : AppCompatActivity(), NimbblCheckoutPaymentListener, NimbblIn
         val baseUrl   = preferences.getString("shop_base_url", BASE_URL).toString()
         var accessKey =  "access_key_1MwvMkKkweorz0ry"
 
-        var apiUrl = ""
-        var webViewUrl = ""
-        var webViewRespUrl = ""
         when {
             baseUrl.equals("https://devshop.nimbbl.tech/api/") -> {
-               apiUrl = "https://devapi.nimbbl.tech/api/v2/"
-                webViewUrl ="https://devcheckout.nimbbl.tech/?modal=false&order_id="
-                webViewRespUrl ="https://devcheckout.nimbbl.tech/mobile/redirect"
                 accessKey =  preferences.getString("access_key_dev","access_key_1MwvMkKkweorz0ry").toString()
             }
             baseUrl.equals("https://uatshop.nimbbl.tech/api/") -> {
-                apiUrl = "https://uatapi.nimbbl.tech/api/v2/"
-                webViewUrl ="https://uatcheckout.nimbbl.tech/?modal=false&order_id="
-                webViewRespUrl ="https://uatcheckout.nimbbl.tech/mobile/redirect"
                 accessKey =  preferences.getString("access_key_uat","access_key_1MwvMkKkweorz0ry").toString()
             }
             baseUrl.equals("https://shoppp.nimbbl.tech/api/") -> {
-                apiUrl = "https://apipp.nimbbl.tech/api/v2/"
-                webViewUrl ="https://checkoutpp.nimbbl.tech/?modal=false&order_id="
-                webViewRespUrl ="https://checkoutpp.nimbbl.tech/mobile/redirect"
                 accessKey =  preferences.getString("access_key_preprod","access_key_1MwvMkKkweorz0ry").toString()
             }
             baseUrl.equals("https://shop.nimbbl.tech/api/") -> {
-                apiUrl = "https://api.nimbbl.tech/api/v2/"
-                webViewUrl ="https://checkout.nimbbl.tech/?modal=false&order_id="
-                webViewRespUrl ="https://checkout.nimbbl.tech/mobile/redirect"
                 accessKey =  preferences.getString("access_key_prod","access_key_1MwvMkKkweorz0ry").toString()
             }
         }
         val appMode = preferences.getString("sample_app_mode","browser")
         if(appMode.equals("browser")) {
             val options = b.setKey(accessKey).setOrderId(orderId).build()
-            NimbblCheckoutSDK.instance?.init(this, apiUrl, webViewUrl, webViewRespUrl)
+            NimbblCheckoutSDK.instance?.init(this)
             NimbblCheckoutSDK.instance?.checkout(options)
         }else {
             //val intent =  Intent(this,NimbblNativePaymentActivity::class.java)

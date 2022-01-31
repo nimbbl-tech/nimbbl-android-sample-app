@@ -7,13 +7,14 @@ import android.widget.RadioButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.nimbbl.data.model.network.ApiCall.Companion.BASE_URL
-import kotlinx.android.synthetic.main.activity_nimmbl_config.*
+import kotlinx.android.synthetic.main.activity_nimbbl_config.*
+import tech.nimbbl.checkout.sdk.NimbblCheckoutSDK
 
 
-class NimmblConfigActivity : AppCompatActivity() {
+class NimbblConfigActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_nimmbl_config)
+        setContentView(R.layout.activity_nimbbl_config)
 val preferences = getSharedPreferences("nimmbl_configs_prefs", MODE_PRIVATE)
 
         val base_url = preferences.getString("shop_base_url","")
@@ -125,13 +126,43 @@ val preferences = getSharedPreferences("nimmbl_configs_prefs", MODE_PRIVATE)
                      editor.putString("sample_app_mode","browser")
                  }
              }
-            BASE_URL = base_url.toString()
+            BASE_URL = baseUrl
+            var apiUrl = ""
+            var webViewUrl = ""
+            var webViewRespUrl = ""
+            when {
+                baseUrl.equals("https://devshop.nimbbl.tech/api/") -> {
+                    apiUrl = "https://devapi.nimbbl.tech/api/v2/"
+                    webViewUrl ="https://devcheckout.nimbbl.tech/?modal=false&order_id="
+                    webViewRespUrl ="https://devcheckout.nimbbl.tech/mobile/redirect"
+                }
+                baseUrl.equals("https://uatshop.nimbbl.tech/api/") -> {
+                    apiUrl = "https://uatapi.nimbbl.tech/api/v2/"
+                    webViewUrl ="https://uatcheckout.nimbbl.tech/?modal=false&order_id="
+                    webViewRespUrl ="https://uatcheckout.nimbbl.tech/mobile/redirect"
+                }
+                baseUrl.equals("https://shoppp.nimbbl.tech/api/") -> {
+                    apiUrl = "https://apipp.nimbbl.tech/api/v2/"
+                    webViewUrl ="https://checkoutpp.nimbbl.tech/?modal=false&order_id="
+                    webViewRespUrl ="https://checkoutpp.nimbbl.tech/mobile/redirect"
+                }
+                baseUrl.equals("https://shop.nimbbl.tech/api/") -> {
+                    apiUrl = "https://api.nimbbl.tech/api/v2/"
+                    webViewUrl ="https://checkout.nimbbl.tech/?modal=false&order_id="
+                    webViewRespUrl ="https://checkout.nimbbl.tech/mobile/redirect"
+                }
+            }
+            NimbblCheckoutSDK.instance?.setEnvironmentUrls(apiUrl,webViewUrl,webViewRespUrl)
 
             editor.putString("shop_base_url", baseUrl)
-            editor.commit()
+             val isSuccess = editor.commit()
 
-            Toast.makeText(this,"Environment selected successfully !",Toast.LENGTH_SHORT).show()
-            onBackPressed()
+            if(isSuccess) {
+
+                Toast.makeText(this, "Environment selected successfully !", Toast.LENGTH_SHORT)
+                    .show()
+                onBackPressed()
+            }
 
         }
     }

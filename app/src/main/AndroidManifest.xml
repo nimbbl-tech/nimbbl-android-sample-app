@@ -17,7 +17,7 @@
             android:name=".NimbblNativePaymentActivity"
             android:exported="false" />-->
         <activity
-            android:name=".NimmblConfigActivity"
+            android:name=".NimbblConfigActivity"
             android:exported="false" />
         <activity
             android:name=".ui.OrderSucessPageAcitivty"
