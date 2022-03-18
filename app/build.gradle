@@ -9,7 +9,7 @@ android {
     buildToolsVersion '32.0.0'
 
     defaultConfig {
-        applicationId "com.example.nimbbl"
+        applicationId "tech.nimbbl.example"
         minSdkVersion 22
         targetSdkVersion 32
         versionCode 4
@@ -44,6 +44,7 @@ android {
 
 dependencies {
     implementation 'com.google.android.material:material:1.5.0'
+    implementation project(path: ':nimbbl_mobile_kit_core_android_sdk')
     def retrofit_version = "2.9.0"
     def room_version = "2.4.1"
     implementation fileTree(dir: "libs", include: ["*.jar"])
@@ -73,9 +74,10 @@ dependencies {
     // optional - Kotlin Extensions and Coroutines support for Room
     implementation "androidx.room:room-ktx:$room_version"
     implementation 'com.airbnb.android:lottie:3.4.1'
-    implementation 'tech.nimbbl.sdk:nimbbl-checkout-sdk:1.4.1'
+    implementation 'com.github.bumptech.glide:glide:4.12.0'
+  /*  implementation 'tech.nimbbl.sdk:nimbbl-checkout-sdk:1.4.1'*/
 //    implementation (name:'nimbbl-releasev1.0' , ext:'aar')
-   /*  implementation project(path: ':nimbbl_mobile_kit_android_native')
-     implementation project(path: ':nimbbl_mobile_kit_core_android_sdk')*/
+     implementation project(path: ':nimbbl_mobile_kit_android_native')
+     implementation project(path: ':nimbbl_mobile_kit_core_android_sdk')
 
 }

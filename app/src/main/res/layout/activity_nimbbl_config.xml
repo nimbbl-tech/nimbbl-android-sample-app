@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="20dp"
-        tools:context=".NimbblConfigActivity">
+        tools:context=".ui.NimbblConfigActivity">
 
 
         <TextView
@@ -107,13 +107,14 @@
                 android:id="@+id/radio_custom_browser"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:visibility="visible"
                 android:text="Custom Browser" />
 
             <RadioButton
                 android:id="@+id/radio_native"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:text="Native" />
         </RadioGroup>
 
@@ -124,6 +125,8 @@
             android:layout_below="@+id/radio_sampleapp_group"
             android:layout_marginTop="10dp"
             android:text="Done" />
+
+
 
     </RelativeLayout>
 </ScrollView>

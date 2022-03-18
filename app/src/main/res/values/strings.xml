@@ -1,7 +1,23 @@
 <resources>
     <string name="app_name">Nimbbl</string>
+<!--
+    <string name="access_key">access_key_ZR7ld8EEmrV8b79p</string>
+    <string name="secret_key">access_secret_BmO74nYYnJpnd3qx</string>-->
+
+       <string name="access_key">access_key_1MwvMkKkweorz0ry</string>
+        <string name="secret_key">access_secret_81x7ByYkRpB4g05N</string>
+
     <string-array name="payment_choice_node">
         <item>Webview</item>
         <item>Native</item>
     </string-array>
+
+    <string name="expandable_card_view_image_content_description">Arrow to expand card</string>
+    <string name="expandable_card_view_icon_content_description">Card icon</string>
+    <string name="tv_resend_otp"><u>Resend OTP</u></string>
+    <string name="lbl_enter_otp">Enter OTP</string>
+    <string name="lbl_transaction_enquiry">Transaction Enquiry</string>
+    <string name="lbl_done">Done</string>
+    <string name="lbl_retry">Retry</string>
+    <string name="lbl_close">Close</string>
 </resources>

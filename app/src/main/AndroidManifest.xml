@@ -13,22 +13,22 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-  <!--      <activity
-            android:name=".NimbblNativePaymentActivity"
-            android:exported="false" />-->
+     <activity
+            android:name=".ui.NimbblNativePaymentActivity"
+            android:exported="false"/>
         <activity
-            android:name=".NimbblConfigActivity"
+            android:name=".ui.NimbblConfigActivity"
+            android:theme="@style/AppTheme"
             android:exported="false" />
         <activity
             android:name=".ui.OrderSucessPageAcitivty"
             android:exported="false" />
         <activity
-            android:name=".ui.CatalogPage"
+            android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

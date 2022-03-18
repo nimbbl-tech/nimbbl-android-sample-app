@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/ci_progress_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:progress="00"
+            app:indicatorColor="@android:color/black"
+            app:indicatorSize="120dp"
+            app:trackColor="@android:color/darker_gray" />
+
+        <TextView
+            android:id="@+id/tv_progressText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="30dp"
+            android:textStyle="bold"
+            android:textColor="@android:color/darker_gray"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="03:42" />
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"/>
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Please approve the payment request on your UPI app"/>
+
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp">
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_smartphone"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="5dp"
+        android:layout_centerVertical="true"
+        android:background="@drawable/smartphone"/>
+    <TextView
+        android:id="@+id/tv_step1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Step 1"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:layout_toRightOf="@+id/iv_smartphone"/>
+    <TextView
+        android:id="@+id/tv_step1_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Go to UPI app"
+        android:layout_marginTop="2dp"
+        android:textColor="@color/black"
+        android:layout_toRightOf="@+id/iv_smartphone"
+        android:layout_below="@+id/tv_step1"/>
+</RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_smartphone_with_hand"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="5dp"
+            android:layout_centerVertical="true"
+            android:background="@drawable/smartphone_with_hand"/>
+        <TextView
+            android:id="@+id/tv_step2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Step 2"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_toRightOf="@+id/iv_smartphone_with_hand"/>
+        <TextView
+            android:id="@+id/tv_step2_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Check Pending requests and approve payment by entering UPI PIN"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/black"
+            android:layout_toRightOf="@+id/iv_smartphone_with_hand"
+            android:layout_below="@+id/tv_step2"/>
+    </RelativeLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#093B59"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:layout_marginTop="10dp"
+        android:textSize="12sp"
+        android:layout_gravity="center"
+        android:text="Please do not close the window \nuntil the payment is processed"></TextView>
+</LinearLayout>

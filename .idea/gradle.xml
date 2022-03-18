@@ -7,11 +7,12 @@
         <option name="testRunner" value="GRADLE" />
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleJvm" value="17" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/../nimbbl_mobile_kit_android_native" />
+            <option value="$PROJECT_DIR$/../nimbbl_mobile_kit_core_android_sdk" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
