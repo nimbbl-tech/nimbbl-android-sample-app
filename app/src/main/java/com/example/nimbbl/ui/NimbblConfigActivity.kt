@@ -2,14 +2,16 @@ package com.example.nimbbl.ui
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.View
 import android.view.WindowManager
-import android.widget.RadioButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.nimbbl.R
 import com.example.nimbbl.network.ApiCall.Companion.BASE_URL
-import com.zl.nimbblpaycoresdk.NimbblPayCheckoutSDK
+import com.example.nimbbl.utils.AppPreferenceKeys.APP_PREFERENCE
+import com.example.nimbbl.utils.AppPreferenceKeys.APP_TEST_MERCHANT
+import com.example.nimbbl.utils.AppPreferenceKeys.SAMPLE_APP_MODE
+import com.example.nimbbl.utils.AppPreferenceKeys.SHOP_BASE_URL
+import com.zl.nimbblpaycoresdk.NimbblPayCheckoutBaseSDK
 import kotlinx.android.synthetic.main.activity_nimbbl_config.*
 
 
@@ -21,149 +23,94 @@ class NimbblConfigActivity : AppCompatActivity() {
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
         setContentView(R.layout.activity_nimbbl_config)
-        val preferences = getSharedPreferences("nimmbl_configs_prefs", MODE_PRIVATE)
-        NimbblPayCheckoutSDK.getInstance(this)?.setEnvironmentUrl("")
-        val base_url = preferences.getString("shop_base_url", "")
-        var accessKey = getString(R.string.access_key)
+        val preferences = getSharedPreferences(APP_PREFERENCE, MODE_PRIVATE)
+        val baseUrl = preferences.getString(SHOP_BASE_URL, "")
         when {
-            base_url.equals("https://devshop.nimbbl.tech/api/") -> {
-                radio_sandbox_group.check(R.id.radio_dev)
-                tv_title_accesskey.text = " Update a dev environment access key"
-                accessKey = preferences.getString("access_key_dev", getString(R.string.access_key))
-                    .toString()
+            baseUrl.equals("https://devshop.nimbbl.tech/api/") -> {
+                spn_environments.setSelection(3)
             }
-            base_url.equals("https://uatshop.nimbbl.tech/api/") -> {
-                radio_sandbox_group.check(R.id.radio_uat)
-                tv_title_accesskey.text = " Update a uat environment access key"
-                accessKey = preferences.getString("access_key_uat", getString(R.string.access_key))
-                    .toString()
+            baseUrl.equals("https://uatshop.nimbbl.tech/api/") -> {
+                spn_environments.setSelection(2)
             }
-            base_url.equals("https://shoppp.nimbbl.tech/api/") -> {
-                radio_sandbox_group.check(R.id.radio_preprod)
-                tv_title_accesskey.text = " Update a preprod environment access key"
-                accessKey =
-                    preferences.getString("access_key_preprod",getString(R.string.access_key))
-                        .toString()
+            baseUrl.equals("https://shoppp.nimbbl.tech/api/") -> {
+                spn_environments.setSelection(1)
             }
-            base_url.equals("https://shop.nimbbl.tech/api/") -> {
-                radio_sandbox_group.check(R.id.radio_prod)
-                tv_title_accesskey.text = " Update a prod environment access key"
-                accessKey = preferences.getString("access_key_prod", getString(R.string.access_key))
-                    .toString()
+            baseUrl.equals("https://shop.nimbbl.tech/api/") -> {
+                spn_environments.setSelection(0)
             }
         }
-        edt_access_key.setText(accessKey)
 
-        val sampleApp = preferences.getString("sample_app_mode", "browser")
-        if (sampleApp.equals("browser")) {
-            radio_sampleapp_group.check(R.id.radio_custom_browser)
+        val sampleApp = preferences.getString(SAMPLE_APP_MODE, getString(R.string.value_native))
+        if (sampleApp.equals(getString(R.string.value_native))) {
+            spn_app_experience.setSelection(0)
         } else {
-            radio_sampleapp_group.check(R.id.radio_native)
+            spn_app_experience.setSelection(1)
         }
 
 
-
-
-        radio_sandbox_group.setOnCheckedChangeListener { group, checkedId ->
-            // This will get the radiobutton that has changed in its check state
-            val checkedRadioButton = group.findViewById<View>(checkedId) as RadioButton
-            // This puts the value (true/false) into the variable
-            val isChecked = checkedRadioButton.isChecked
-            // If the radiobutton that has changed in check state is now checked...
-            if (isChecked) {
-                // Changes the textview's text to "Checked: example radiobutton text"
-                if (checkedRadioButton.id == R.id.radio_dev) {
-                    tv_title_accesskey.text = " Update a dev environment access key"
-                    edt_access_key.setText(
-                        preferences.getString(
-                            "access_key_dev",
-                            getString(R.string.access_key)
-                        ).toString()
-                    )
-                } else if (checkedRadioButton.id == R.id.radio_uat) {
-                    tv_title_accesskey.text = " Update a uat environment access key"
-                    edt_access_key.setText(
-                        preferences.getString(
-                            "access_key_uat",
-                            getString(R.string.access_key)
-                        ).toString()
-                    )
-                } else if (checkedRadioButton.id == R.id.radio_preprod) {
-                    tv_title_accesskey.text = " Update a preprod environment access key"
-                    edt_access_key.setText(
-                        preferences.getString(
-                            "access_key_preprod",
-                            getString(R.string.access_key)
-                        ).toString()
-                    )
-                } else if (checkedRadioButton.id == R.id.radio_prod) {
-                    tv_title_accesskey.text = " Update a prod environment access key"
-                    edt_access_key.setText(
-                        preferences.getString(
-                            "access_key_prod",
-                            getString(R.string.access_key)
-                        ).toString()
-                    )
-                }
+        val testMerchant = preferences.getString(APP_TEST_MERCHANT, getString(R.string.value_native_config))
+        when {
+            testMerchant.equals(getString(R.string.value_native_config)) -> {
+                spn_test_merchant.setSelection(0)
+            }
+            testMerchant.equals(getString(R.string.value_razorpay_config)) -> {
+                spn_test_merchant.setSelection(1)
+            }
+            testMerchant.equals(getString(R.string.value_payu_config)) -> {
+                spn_test_merchant.setSelection(2)
+            }
+            testMerchant.equals(getString(R.string.value_cash_free_config)) -> {
+                spn_test_merchant.setSelection(3)
             }
         }
 
         btn_done.setOnClickListener {
-            var baseUrl = "https://devshop.nimbbl.tech/api/"
+            var tempBaseUrl = "https://shop.nimbbl.tech/api/"
             val editor: SharedPreferences.Editor = preferences.edit()
-            when (radio_sandbox_group.checkedRadioButtonId) {
-                R.id.radio_dev -> {
-                    baseUrl = "https://devshop.nimbbl.tech/api/"
-                    editor.putString("access_key_dev", edt_access_key.text.toString().trim())
+            when (spn_environments.selectedItem.toString()) {
+                getString(R.string.value_dev) -> {
+                    tempBaseUrl = "https://devshop.nimbbl.tech/api/"
                 }
-                R.id.radio_uat -> {
-                    baseUrl = "https://uatshop.nimbbl.tech/api/"
-                    editor.putString("access_key_uat", edt_access_key.text.toString().trim())
+                getString(R.string.value_uat) -> {
+                    tempBaseUrl = "https://uatshop.nimbbl.tech/api/"
                 }
-                R.id.radio_preprod -> {
-                    baseUrl = "https://shoppp.nimbbl.tech/api/"
-                    editor.putString("access_key_preprod", edt_access_key.text.toString().trim())
+                getString(R.string.value_pp)-> {
+                    tempBaseUrl = "https://shoppp.nimbbl.tech/api/"
                 }
-                R.id.radio_prod -> {
-                    baseUrl = "https://shop.nimbbl.tech/api/"
-                    editor.putString("access_key_prod", edt_access_key.text.toString().trim())
+                getString(R.string.value_prod) -> {
+                    tempBaseUrl = "https://shop.nimbbl.tech/api/"
                 }
             }
-            when (radio_sampleapp_group.checkedRadioButtonId) {
-                R.id.radio_native -> {
-                    editor.putString("sample_app_mode", "native")
 
-                }
-                R.id.radio_custom_browser -> {
-                    editor.putString("sample_app_mode", "browser")
-                }
-            }
-            BASE_URL = baseUrl
+            BASE_URL = tempBaseUrl
             var apiUrl = ""
             when {
-                baseUrl.equals("https://devshop.nimbbl.tech/api/") -> {
+                tempBaseUrl.equals("https://devshop.nimbbl.tech/api/") -> {
                     apiUrl = "https://devapi.nimbbl.tech/api/v2/"
                 }
-                baseUrl.equals("https://uatshop.nimbbl.tech/api/") -> {
+                tempBaseUrl.equals("https://uatshop.nimbbl.tech/api/") -> {
                     apiUrl = "https://uatapi.nimbbl.tech/api/v2/"
                 }
-                baseUrl.equals("https://shoppp.nimbbl.tech/api/") -> {
+                tempBaseUrl.equals("https://shoppp.nimbbl.tech/api/") -> {
                     apiUrl = "https://apipp.nimbbl.tech/api/v2/"
                 }
-                baseUrl.equals("https://shop.nimbbl.tech/api/") -> {
+                tempBaseUrl.equals("https://shop.nimbbl.tech/api/") -> {
                     apiUrl = "https://api.nimbbl.tech/api/v2/"
                 }
             }
-            NimbblPayCheckoutSDK.getInstance(this)?.setEnvironmentUrl(apiUrl)
 
-            editor.putString("shop_base_url", baseUrl)
+            editor.putString(SAMPLE_APP_MODE, spn_app_experience.selectedItem.toString())
+            editor.putString(APP_TEST_MERCHANT, spn_test_merchant.selectedItem.toString())
+            editor.putString(SHOP_BASE_URL, tempBaseUrl)
+            NimbblPayCheckoutBaseSDK.getInstance(applicationContext)?.setEnvironmentUrl(apiUrl)
+
             val isSuccess = editor.commit()
 
             if (isSuccess) {
 
                 Toast.makeText(this, "Environment selected successfully !", Toast.LENGTH_SHORT)
                     .show()
-                onBackPressed()
+               onBackPressed()
             }
 
         }

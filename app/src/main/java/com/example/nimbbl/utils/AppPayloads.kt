@@ -12,7 +12,6 @@ import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.action_resolveUser
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.action_validateCard
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.action_verifyUser
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_OrderID
-import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_accessKey
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_action
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_app_package_name
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_card_cvv
@@ -44,43 +43,57 @@ Copyright (c) 2022 Bigital Technologies Pvt. Ltd. All rights reserved.
 object AppPayloads {
 
     fun createOrderPayload(
-        productID: Int
+        productID: Int,
+        totalAmount: String,
+        emailId: String,
+        firstname: String,
+        lastname: String,
+        mobileNumber: String,
+        addr1: String,
+        street: String,
+        landmark: String,
+        area: String,
+        city: String,
+        state: String,
+        pin: String,
+        skuTitle: String,
+        desc: String,
     ): JSONObject {
         val createOrderPayload = JSONObject()
         try {
             createOrderPayload.put("id", productID)
             createOrderPayload.put("currency", "INR")
-            createOrderPayload.put("total_amount", "2")
+            createOrderPayload.put("total_amount", totalAmount)
 
             val userJsonObj = JSONObject()
-            userJsonObj.put("email", "ydv.sandeep24@gmail.com")
-            userJsonObj.put("first_name", "Sandeep")
-            userJsonObj.put("last_name", "Yadav")
+            userJsonObj.put("email", emailId)
+            userJsonObj.put("first_name", firstname)
+            userJsonObj.put("last_name", lastname)
             userJsonObj.put("country_code", "+91")
-            userJsonObj.put("mobile_number", "8454906089")
+            userJsonObj.put("mobile_number", mobileNumber)
             createOrderPayload.put("user", userJsonObj)
 
             val shippingAddrJsonObj = JSONObject()
-            shippingAddrJsonObj.put("address_1", "My address")
-            shippingAddrJsonObj.put("street", "My street")
-            shippingAddrJsonObj.put("landmark", "My landmark")
-            shippingAddrJsonObj.put("area", "My area")
-            shippingAddrJsonObj.put("city", "Mumbai")
-            shippingAddrJsonObj.put("state", "Maharashtra")
-            shippingAddrJsonObj.put("pincode", "400018")
+            shippingAddrJsonObj.put("address_1", addr1)
+            shippingAddrJsonObj.put("street", street)
+            shippingAddrJsonObj.put("landmark", landmark)
+            shippingAddrJsonObj.put("area", area)
+            shippingAddrJsonObj.put("city", city)
+            shippingAddrJsonObj.put("state", state)
+            shippingAddrJsonObj.put("pincode", pin)
             shippingAddrJsonObj.put("address_type", "residential")
             createOrderPayload.put("shipping_address", shippingAddrJsonObj)
 
             val orderLineItemJsonArray = JSONArray()
             val orderLineItem = JSONObject()
             orderLineItem.put("sku_id", "sku1")
-            orderLineItem.put("title", "sku1")
-            orderLineItem.put("description", "sku1")
+            orderLineItem.put("title", skuTitle)
+            orderLineItem.put("description", desc)
             orderLineItem.put("quantity", "1")
-            orderLineItem.put("rate", "5")
-            orderLineItem.put("amount_before_tax", "5")
+            orderLineItem.put("rate", totalAmount)
+            orderLineItem.put("amount_before_tax", "1")
             orderLineItem.put("tax", "1")
-            orderLineItem.put("total_amount", "6")
+            orderLineItem.put("total_amount", totalAmount.toInt()+1)
             orderLineItem.put(
                 "image_url",
                 "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7Ay5KWSTviUsTHZ7m_-YJvOlPMwGhZIPuzobqynBqQbQP1_KWCuc8qlwREOiTP38Hs_fLTJYl&usqp=CAc"
@@ -97,7 +110,6 @@ object AppPayloads {
     fun initResourcePayload(
         token: String,
         subMerchantId: String,
-        accessKey: String,
         packageName: String
     ): JSONObject {
         val inputInItPayload = JSONObject()
@@ -106,7 +118,6 @@ object AppPayloads {
             inputInItPayload.put(key_subMerchantId, subMerchantId)
 
             val nimbblJsonPayload = JSONObject()
-            nimbblJsonPayload.put(key_accessKey, accessKey)
             nimbblJsonPayload.put(key_packageName, packageName)
             inputInItPayload.put(key_nimbblPayload, nimbblJsonPayload)
 

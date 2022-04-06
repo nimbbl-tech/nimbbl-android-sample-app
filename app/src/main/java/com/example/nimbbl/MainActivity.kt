@@ -4,11 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.WindowManager
+import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.nimbbl.model.CatalogModel
-import com.example.nimbbl.model.postbody.GenerateTokenbody
 import com.example.nimbbl.network.ApiCall.Companion.BASE_URL
 import com.example.nimbbl.repository.CatalogRepository
 import com.example.nimbbl.ui.NimbblConfigActivity
@@ -16,19 +17,25 @@ import com.example.nimbbl.ui.NimbblNativePaymentActivity
 import com.example.nimbbl.ui.OrderSucessPageAcitivty
 import com.example.nimbbl.ui.adapters.Catalog_Adapter
 import com.example.nimbbl.utils.AppPayloads
-import com.zl.nimbblpaycoresdk.NimbblPayCheckoutSDK
+import com.example.nimbbl.utils.AppPreferenceKeys.APP_PREFERENCE
+import com.zl.nimbblpaycoresdk.NimbblPayCheckoutBaseSDK
 import com.zl.nimbblpaycoresdk.api.ServiceConstants
 import com.zl.nimbblpaycoresdk.interfaces.NimbblCheckoutPaymentListener
 import com.zl.nimbblpaycoresdk.interfaces.NimbblInItResourceListener
+import com.zl.nimbblpaycoresdk.utils.PayloadKeys
+import com.zl.nimbblpaycoresdk.utils.getAPIRequestBody
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.RequestBody
+import org.json.JSONObject
 import tech.nimbbl.checkout.sdk.NimbblCheckoutSDK
 
 @DelicateCoroutinesApi
-class MainActivity : AppCompatActivity(), NimbblCheckoutPaymentListener, NimbblInItResourceListener {
+class MainActivity : AppCompatActivity(), NimbblCheckoutPaymentListener,
+    NimbblInItResourceListener {
 
     private var token: String? = null
 
@@ -39,80 +46,78 @@ class MainActivity : AppCompatActivity(), NimbblCheckoutPaymentListener, NimbblI
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
         setContentView(R.layout.activity_main)
-        NimbblPayCheckoutSDK.getInstance(this@MainActivity)?.isInitialised(this)
-        val preferences = getSharedPreferences("nimmbl_configs_prefs", MODE_PRIVATE)
-        val appMode = preferences.getString("sample_app_mode", "")
-        if (appMode != null) {
-            if(appMode.isEmpty()) {
-                val intent = Intent(this, NimbblConfigActivity::class.java)
-                startActivity(intent)
-            }
-        }
-        BASE_URL = preferences.getString("shop_base_url", BASE_URL).toString()
-        CoroutineScope(Dispatchers.Main).launch {
-            try {
-                var apiUrl = ""
-                when {
-                    BASE_URL.equals("https://devshop.nimbbl.tech/api/") -> {
-                        apiUrl = "https://devapi.nimbbl.tech/api/v2/"
+        NimbblPayCheckoutBaseSDK.getInstance(applicationContext)?.isInitialised(this)
+        val preferences = getSharedPreferences(APP_PREFERENCE, MODE_PRIVATE)
+        val appMode = preferences.getString("sample_app_mode", "").toString()
+        if (appMode.isEmpty()) {
+            val intent = Intent(this, NimbblConfigActivity::class.java)
+            startActivity(intent)
+        } else {
+            BASE_URL = preferences.getString("shop_base_url", BASE_URL).toString()
+            val productId =  preferences.getString("app_product_id","5").toString()
+            CoroutineScope(Dispatchers.Main).launch {
+                try {
+                    var apiUrl = ""
+                    when {
+                        BASE_URL.equals("https://devshop.nimbbl.tech/api/") -> {
+                            apiUrl = "https://devapi.nimbbl.tech/api/v2/"
+                        }
+                        BASE_URL.equals("https://uatshop.nimbbl.tech/api/") -> {
+                            apiUrl = "https://uatapi.nimbbl.tech/api/v2/"
+                        }
+                        BASE_URL.equals("https://shoppp.nimbbl.tech/api/") -> {
+                            apiUrl = "https://apipp.nimbbl.tech/api/v2/"
+                        }
+                        BASE_URL.equals("https://shop.nimbbl.tech/api/") -> {
+                            apiUrl = "https://api.nimbbl.tech/api/v2/"
+                        }
                     }
-                    BASE_URL.equals("https://uatshop.nimbbl.tech/api/") -> {
-                        apiUrl = "https://uatapi.nimbbl.tech/api/v2/"
+
+
+                    val jsonObject = JSONObject()
+                    jsonObject.put(PayloadKeys.key_product_id, productId)
+                    val body: RequestBody = getAPIRequestBody(jsonObject)
+                    val response = CatalogRepository().generateToken(
+                        apiUrl + "generate-token",
+                        body
+                    )
+                    if (response.isSuccessful) {
+                        token = response.body()?.result?.token.toString()
+                        Log.i("SAN", "response.body().token-->" + (response.body()?.result?.token ?: ""))
+                        val inputInItPayload = AppPayloads.initResourcePayload(
+                            response.body()?.result?.token.toString(),
+                            response.body()?.result?.auth_principal?.sub_merchant_id.toString(),
+                            application.packageName
+                        )
+                        NimbblPayCheckoutBaseSDK.getInstance(applicationContext)?.initResource(
+                            this@MainActivity,
+                            inputInItPayload,
+                            this@MainActivity
+                        )
                     }
-                    BASE_URL.equals("https://shoppp.nimbbl.tech/api/") -> {
-                        apiUrl = "https://apipp.nimbbl.tech/api/v2/"
-                    }
-                    BASE_URL.equals("https://shop.nimbbl.tech/api/") -> {
-                        apiUrl = "https://api.nimbbl.tech/api/v2/"
-                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
 
-
-                val body = GenerateTokenbody(
-                    getString(R.string.access_key),
-                    getString(R.string.secret_key)
-                )
-                val response = CatalogRepository().generateToken(
-                    apiUrl + "generate-token",
-                    body
-                )
-                if (response.isSuccessful) {
-                    token = response.body()?.token.toString()
-                    Log.i("SAN", "response.body().token-->" + (response.body()?.token ?: ""))
-                    val inputInItPayload = AppPayloads.initResourcePayload(
-                        response.body()?.token.toString(),
-                        response.body()?.auth_principal?.sub_merchant_id.toString(),
-                        getString(R.string.access_key),
-                        application.packageName
-                    )
-                    NimbblPayCheckoutSDK.getInstance(this@MainActivity)?.initResource(
-                        this@MainActivity,
-                        inputInItPayload,
-                        this@MainActivity
-                    )
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
+            val list: List<CatalogModel> =
+                listOf(
+                    CatalogModel(
+                        "Colourful Mandalas.",
+                        "₹ 2",
+                        "Convert your dreary device into a bright happy place with this wallpaper by Speedy McVroom",
+                        1
+                    ),
+                    CatalogModel(
+                        "Designer Triangles.",
+                        "₹ 4",
+                        "Bold blue and deep black triangle designer wallpaper to give your device a hypnotic effect by  chenspec from Pixabay",
+                        2
+                    )
+                )
+            setUpRecycelrvView(list)
 
         }
-        val list: List<CatalogModel> =
-            listOf(
-                CatalogModel(
-                    "Colourful Mandalas.",
-                    "₹ 2",
-                    "Convert your dreary device into a bright happy place with this wallpaper by Speedy McVroom",
-                    1
-                ),
-                CatalogModel(
-                    "Designer Triangles.",
-                    "₹ 4",
-                    "Bold blue and deep black triangle designer wallpaper to give your device a hypnotic effect by  chenspec from Pixabay",
-                    2
-                )
-            )
-        setUpRecycelrvView(list)
-
         tv_settings.setOnClickListener {
             val intent = Intent(this, NimbblConfigActivity::class.java)
             startActivity(intent)
@@ -187,7 +192,7 @@ class MainActivity : AppCompatActivity(), NimbblCheckoutPaymentListener, NimbblI
 
     fun makePayment(orderId: String, subMerchantId: String) {
         val b = com.zl.nimbblpaycoresdk.models.NimbblCheckoutOptions.Builder()
-        val preferences = getSharedPreferences("nimmbl_configs_prefs", MODE_PRIVATE)
+        val preferences = getSharedPreferences(APP_PREFERENCE, MODE_PRIVATE)
         val baseUrl = preferences.getString("shop_base_url", BASE_URL).toString()
         var accessKey = "access_key_1MwvMkKkweorz0ry"
 
@@ -213,11 +218,12 @@ class MainActivity : AppCompatActivity(), NimbblCheckoutPaymentListener, NimbblI
 
         val appMode = preferences.getString("sample_app_mode", "")
         if (appMode.equals("browser")) {
-            val options = b.setKey(accessKey).setOrderId(orderId).build()
+            val options = b.setPackageName(accessKey).setOrderId(orderId).build()
             NimbblCheckoutSDK.instance?.init(this)
             NimbblCheckoutSDK.instance?.checkout(options)
         } else {
-            val options = b.setKey(accessKey).setOrderId(orderId).setToken(token).setSubMerchantId(subMerchantId).build()
+            val options = b.setPackageName(accessKey).setOrderId(orderId).setToken(token)
+                .setSubMerchantId(subMerchantId).build()
             val intent = Intent(this, NimbblNativePaymentActivity::class.java)
             intent.putExtra("options", options)
             startActivity(intent)
@@ -232,45 +238,86 @@ class MainActivity : AppCompatActivity(), NimbblCheckoutPaymentListener, NimbblI
     }
 
     fun buyNow(id: Int) {
-        CoroutineScope(Dispatchers.Main).launch {
-            try {
-                var apiUrl = ""
-                when {
-                    BASE_URL.equals("https://devshop.nimbbl.tech/api/") -> {
-                        apiUrl = "https://devapi.nimbbl.tech/api/v2/"
+        showMobileNoEntryScreen(id)
+    }
+
+    private fun showMobileNoEntryScreen(id: Int) {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+        builder.setTitle(getString(R.string.lbl_enter_mobile_number))
+        builder.setCancelable(false)
+        val view = layoutInflater.inflate(R.layout.mobile_no_dialog, null);
+        builder.setView(view)
+
+        val edtMobileNo = view.findViewById<EditText>(R.id.edt_mobileNo)
+
+        builder.setPositiveButton("Continue") { _, _ ->
+            val mobileNo = edtMobileNo.text.toString().trim()
+            CoroutineScope(Dispatchers.Main).launch {
+                try {
+                    var apiUrl = ""
+                    when {
+                        BASE_URL.equals("https://devshop.nimbbl.tech/api/") -> {
+                            apiUrl = "https://devapi.nimbbl.tech/api/v2/"
+                        }
+                        BASE_URL.equals("https://uatshop.nimbbl.tech/api/") -> {
+                            apiUrl = "https://uatapi.nimbbl.tech/api/v2/"
+                        }
+                        BASE_URL.equals("https://shoppp.nimbbl.tech/api/") -> {
+                            apiUrl = "https://apipp.nimbbl.tech/api/v2/"
+                        }
+                        BASE_URL.equals("https://shop.nimbbl.tech/api/") -> {
+                            apiUrl = "https://api.nimbbl.tech/api/v2/"
+                        }
                     }
-                    BASE_URL.equals("https://uatshop.nimbbl.tech/api/") -> {
-                        apiUrl = "https://uatapi.nimbbl.tech/api/v2/"
+                    val preferences = getSharedPreferences(APP_PREFERENCE, MODE_PRIVATE)
+                    val productId =  preferences.getString("app_product_id","5").toString()
+                    val jsonObject = JSONObject()
+                    jsonObject.put(PayloadKeys.key_product_id, productId)
+                    val body: RequestBody = getAPIRequestBody(jsonObject)
+                    val tokenResponse = CatalogRepository().generateToken(
+                        apiUrl + "generate-token",
+                        body
+                    )
+                    if (tokenResponse.isSuccessful) {
+                        token = tokenResponse.body()?.result?.token.toString()
+                        val response = CatalogRepository().createOrder(
+                            ServiceConstants.BASE_URL + "create-order",
+                            id,
+                            token.toString(),
+                            mobileNo,
+                            "skuAmount",
+                            "skuDesc",
+                            "userFirstName",
+                            "userLastName",
+                            "userEmailId",
+                            mobileNo,
+                            "useraddressLine1",
+                            "userAddrStreet",
+                            "userAddrLandmark",
+                            "userAddrArea",
+                            "userAddrCity",
+                            "userAddrState",
+                            "userAddrPin"
+                        )
+                        if (response.isSuccessful) {
+                            Log.i("response", response.body()!!.order_id)
+                            makePayment(
+                                response.body()!!.order_id,
+                                response.body()!!.sub_merchant_id.toString()
+                            )
+                        }
                     }
-                    BASE_URL.equals("https://shoppp.nimbbl.tech/api/") -> {
-                        apiUrl = "https://apipp.nimbbl.tech/api/v2/"
-                    }
-                    BASE_URL.equals("https://shop.nimbbl.tech/api/") -> {
-                        apiUrl = "https://api.nimbbl.tech/api/v2/"
-                    }
-                }
-                val body = GenerateTokenbody(
-                    getString(R.string.access_key),
-                    getString(R.string.secret_key)
-                )
-                val tokenResponse = CatalogRepository().generateToken(
-                    apiUrl + "generate-token",
-                    body
-                )
-                if (tokenResponse.isSuccessful) {
-                    token = tokenResponse.body()?.token.toString()
-                    val response = CatalogRepository().CreateOrder(ServiceConstants.BASE_URL +"create-order",id,token.toString())
-                    if (response.isSuccessful) {
-                        Log.i("response",response.body()!!.order_id)
-                        makePayment(response.body()!!.order_id,response.body()!!.sub_merchant_id.toString())
-                    }
+
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(this@MainActivity, "Unable to create order,", Toast.LENGTH_SHORT)
+                        .show()
                 }
 
-            }catch (e:Exception){
-                e.printStackTrace()
-                Toast.makeText(this@MainActivity,"Unable to create order,",Toast.LENGTH_SHORT).show()
             }
-
         }
+        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+
+        builder.show()
     }
 }

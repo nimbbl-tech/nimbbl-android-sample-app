@@ -60,7 +60,7 @@ class WalletListViewHolder (inflater: LayoutInflater, parent: ViewGroup):
                 .placeholder(context.getDrawable(R.drawable.credit_card))
                 .into(it)
         }
-        ivIcon?.setOnClickListener {
+        itemView.setOnClickListener {
             context.initiatePayment("Wallet",item)
         }
 

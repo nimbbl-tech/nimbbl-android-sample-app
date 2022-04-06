@@ -1,9 +1,8 @@
 package com.example.nimbbl.network
 
 import android.util.Log
-import com.example.nimbbl.model.GenerateTokenResponse
+import com.example.nimbbl.model.GenerateDemoTokenResponse
 import com.example.nimbbl.model.createoder.OrderDetailVo
-import com.example.nimbbl.model.postbody.GenerateTokenbody
 import com.google.gson.GsonBuilder
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -26,7 +25,7 @@ interface ApiCall {
     suspend fun creatOrder(@Url url :String,@Header("Authorization") auth: String, @Body body: RequestBody):retrofit2.Response<OrderDetailVo>
 
     @POST
-    suspend fun generateToken(@Url url: String,@Body body: GenerateTokenbody): retrofit2.Response<GenerateTokenResponse>
+    suspend fun generateToken(@Url url: String,@Body body: RequestBody): retrofit2.Response<GenerateDemoTokenResponse>
 
     companion object{
         //    private const val BASE_URL = "http://8914a19e267b.ngrok.io/api/"
