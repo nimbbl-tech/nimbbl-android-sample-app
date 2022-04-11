@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.NimbblNativePaymentActivity"
+            android:name=".ui.NimbblNativePaymentMethodsActivity"
             android:exported="false" />
         <activity
             android:name=".ui.NimbblConfigActivity"

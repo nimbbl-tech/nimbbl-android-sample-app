@@ -6,10 +6,12 @@
         <entry key="../../../../../layout/custom_preview.xml" value="0.30092592592592593" />
         <entry key="app/src/main/res/drawable/btn_background.xml" value="0.116" />
         <entry key="app/src/main/res/drawable/btn_background_grey.xml" value="0.116" />
+        <entry key="app/src/main/res/drawable/ic_wallet.xml" value="0.169" />
         <entry key="app/src/main/res/layout/activity_catalog_page.xml" value="0.23425925925925925" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.23425925925925925" />
         <entry key="app/src/main/res/layout/activity_nimbbl_config.xml" value="0.20175438596491227" />
         <entry key="app/src/main/res/layout/activity_nimbbl_native_payment.xml" value="0.19913419913419914" />
+        <entry key="app/src/main/res/layout/activity_nimbbl_native_payment_methods.xml" value="0.4125" />
         <entry key="app/src/main/res/layout/activity_order_create.xml" value="0.396875" />
         <entry key="app/src/main/res/layout/catalog_item.xml" value="0.4125" />
         <entry key="app/src/main/res/layout/dialog_layout_common_payment.xml" value="0.34427083333333336" />

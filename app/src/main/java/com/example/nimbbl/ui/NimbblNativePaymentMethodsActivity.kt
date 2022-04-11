@@ -75,21 +75,22 @@ import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.value_payment_mode_wa
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.value_payment_status_failed
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.value_payment_status_success
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.value_payment_type_otp
-import kotlinx.android.synthetic.main.activity_nimbbl_native_payment.*
+import kotlinx.android.synthetic.main.activity_nimbbl_native_payment_methods.*
 import kotlinx.android.synthetic.main.dialog_layout_common_payment.view.*
 import kotlinx.android.synthetic.main.layout_others.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import org.json.JSONObject
 import tech.nimbbl.checkout.sdk.RestApiUtils
+import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
 
 @DelicateCoroutinesApi
-class NimbblNativePaymentActivity : AppCompatActivity(),
+class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
     NimbblPayNativeCheckoutPaymentListener {
-    private lateinit var paymentView: View
+    private var paymentView: View? = null
     private var upiPollingDialog: AlertDialog? = null
     private var displayCountDownTimer: CountDownTimer? = null
     private var pollingCountDownTimer: CountDownTimer? = null
@@ -101,7 +102,7 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN)
-        setContentView(R.layout.activity_nimbbl_native_payment)
+        setContentView(R.layout.activity_nimbbl_native_payment_methods)
         NimbblPayCheckoutBaseSDK.getInstance(applicationContext)?.isInitialised(this)
         if (intent.hasExtra(tagOption)) {
             options = intent.getParcelableExtra(tagOption)!!
@@ -121,12 +122,6 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
         } catch (e: Exception) {
             e.printStackTrace()
         }
-/*        val initiateOrderPayload = AppPayloads.initialiseOrderPayload(
-            options.token.toString(),
-            options.subMerchantId.toString(),
-            options.orderId.toString()
-        )
-        NimbblPayCheckoutBaseSDK.getInstance(this)?.process(initiateOrderPayload)*/
 
         val resolveUserPayload = AppPayloads.resolveUserPayload(
             options.token.toString(),
@@ -159,8 +154,9 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
 
     fun upiInitiatePayment(paymentMode: String, upiId: String, drawable: Drawable) {
         setPaymentDialogInitialSetting(paymentMode, drawable)
-        val btnPayment = paymentView.findViewById<Button>(R.id.btn_pd_pay)
-        btnPayment.setOnClickListener {
+        val btnPayment = paymentView?.findViewById<Button>(R.id.btn_pd_pay)
+        btnPayment?.text = "Pay ₹ ${options.amount.toDouble()}"
+        btnPayment?.setOnClickListener {
             val initiatePaymentPayload = AppPayloads.upiInitiatePaymentRequestPayload(
                 upiId,
                 options.token.toString(),
@@ -180,9 +176,16 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
 
             event_display_loader -> {
                 progressBarHolder.visibility = View.VISIBLE
+
+                if(paymentView != null) {
+                    paymentView?.pd_progressbar?.visibility = View.VISIBLE
+                }
             }
             event_hide_loader -> {
                 progressBarHolder.visibility = View.GONE
+                if(paymentView != null) {
+                    paymentView?.pd_progressbar?.visibility = View.GONE
+                }
 
             }
             event_exception_occured -> {
@@ -236,7 +239,7 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
                             "paymentMode-->" + data.getJSONObject(key_nimbblPayload)
                                 .getJSONArray(key_paymentModes)
                         )
-                        val paymentDialogBuilder = AlertDialog.Builder(this)
+                        val paymentDialogBuilder = AlertDialog.Builder(this,android.R.style.Theme_Light_NoTitleBar_Fullscreen)
                         paymentDialog = paymentDialogBuilder.create()
                         paymentDialog!!.requestWindowFeature(Window.FEATURE_NO_TITLE)
                         paymentDialog!!.setCancelable(false)
@@ -272,10 +275,10 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
                     }
                     action_validateCard -> {
                         val initiatePaymentCardPayload = AppPayloads.initiateCardPaymentPayload(
-                            paymentView.edt_card_number.text.toString().trim(),
-                            paymentView.edt_expiry.text.toString().trim(),
-                            paymentView.edt_cvv.text.toString().trim(),
-                            paymentView.edt_card_holder_name.text.toString().trim(),
+                            paymentView?.edt_card_number?.text.toString().trim(),
+                            paymentView?.edt_expiry?.text.toString().trim(),
+                            paymentView?.edt_cvv?.text.toString().trim(),
+                            paymentView?.edt_card_holder_name?.text.toString().trim(),
                             "card",
                             cardCategory,
                             options.token.toString(),
@@ -294,9 +297,9 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
                             paymentMode.equals(value_payment_mode_icici_paylater) ||
                             paymentMode.equals(value_payment_mode_olamoney)
                         ) {
-                            val transactionId =
-                                data.getJSONObject(key_nimbblPayload).getString(key_transaction_id)
-                            openOTPDialog(paymentMode, transactionId)
+                            val transactionId = data.getJSONObject(key_nimbblPayload).getString(key_transaction_id)
+                            val drawable = resources.getDrawable(R.drawable.ic_wallet)
+                            payLaterCompletePayment(paymentMode,transactionId,true,drawable)
                         } else if (paymentMode.equals(value_payment_mode_upi)) {
                             val completePaymentRequestPayload =
                                 AppPayloads.getUpiCompletePaymentRequestPayload(
@@ -513,53 +516,44 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
         message: String,
         status: String
     ) {
-        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-        builder.setCancelable(false)
-        builder.setTitle(getString(R.string.lbl_transaction_enquiry))
-        val view = layoutInflater.inflate(R.layout.transaction_enquiry, null)
-        builder.setView(view)
+        setPaymentDialogInitialSetting(getString(R.string.lbl_transaction_enquiry),resources.getDrawable(R.drawable.ic_baseline_info_24))
+        val paymentEnquiryContainer =  paymentView?.findViewById<LinearLayout>(R.id.paymentEnquiry_container)
+        paymentEnquiryContainer?.visibility =  View.VISIBLE
+        val tvPdTextView = paymentView?.findViewById<TextView>(R.id.tv_pd_title)
+        val btnClose = paymentView?.findViewById<Button>(R.id.btn_pd_cancel)
+        btnClose?.visibility = View.GONE
+        tvPdTextView?.text = getString(R.string.lbl_transaction_enquiry)
         if (orderId.isNotEmpty()) {
-            view.findViewById<TextView>(R.id.tv_val_order_id).text = orderId
+            paymentView?.findViewById<TextView>(R.id.tv_val_order_id)?.text = orderId
         } else {
-            view.findViewById<LinearLayout>(R.id.ll_order_id_container).visibility = View.GONE
+            paymentView?.findViewById<LinearLayout>(R.id.ll_order_id_container)?.visibility = View.GONE
         }
 
         if (transactionId.isNotEmpty()) {
-            view.findViewById<TextView>(R.id.tv_val_transaction_id).text = transactionId
+            paymentView?.findViewById<TextView>(R.id.tv_val_transaction_id)?.text = transactionId
         } else {
-            view.findViewById<LinearLayout>(R.id.ll_transaction_id_container).visibility = View.GONE
+            paymentView?.findViewById<LinearLayout>(R.id.ll_transaction_id_container)?.visibility = View.GONE
         }
         if (signature.isNotEmpty()) {
-            view.findViewById<TextView>(R.id.tv_val_signature).text = signature
+            paymentView?.findViewById<TextView>(R.id.tv_val_signature)?.text = signature
         } else {
-            view.findViewById<LinearLayout>(R.id.ll_signature_container).visibility = View.GONE
+            paymentView?.findViewById<LinearLayout>(R.id.ll_signature_container)?.visibility = View.GONE
         }
 
         if (status.isNotEmpty()) {
-            view.findViewById<TextView>(R.id.tv_val_status).text = status
+            paymentView?.findViewById<TextView>(R.id.tv_val_status)?.text = status
         } else {
-            view.findViewById<LinearLayout>(R.id.ll_status_container).visibility = View.GONE
+            paymentView?.findViewById<LinearLayout>(R.id.ll_status_container)?.visibility = View.GONE
         }
         if (message.isNotEmpty()) {
-            view.findViewById<TextView>(R.id.tv_val_message).text = message
+            paymentView?.findViewById<TextView>(R.id.tv_val_message)?.text = message
         } else {
-            view.findViewById<LinearLayout>(R.id.ll_message_container).visibility = View.GONE
+            paymentView?.findViewById<LinearLayout>(R.id.ll_message_container)?.visibility = View.GONE
         }
 
-        builder.setNegativeButton(getString(R.string.lbl_retry)) { _, _ ->
-
-            val paymentEnqRequestPayload =
-                AppPayloads.getTransactionEnquiryRequestPayload(
-                    options.token.toString(),
-                    options.subMerchantId.toString(),
-                    options.orderId.toString(),
-                    paymentMode,
-                    transactionId
-                )
-            NimbblPayCheckoutBaseSDK.getInstance(applicationContext)
-                ?.process(paymentEnqRequestPayload)
-        }
-        builder.setPositiveButton(getString(R.string.lbl_done)) { _, _ ->
+        val btnPayment = paymentView?.findViewById<Button>(R.id.btn_pd_pay)
+        btnPayment?.text = getString(R.string.lbl_done)
+        btnPayment?.setOnClickListener {
             if (paymentDialog != null && paymentDialog!!.isShowing) {
                 paymentDialog!!.dismiss()
                 paymentDialog = null
@@ -567,71 +561,44 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
             this.finish()
         }
         if (!isFinishing) {
-            builder.show()
+            paymentDialog?.show()
         }
-
     }
 
-    private fun openOTPDialog(paymentMode: String, transactionId: String) {
-        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-        builder.setTitle(getString(R.string.lbl_enter_otp))
-        builder.setCancelable(false)
-        val view = layoutInflater.inflate(R.layout.send_otp, null)
-        builder.setView(view)
-
-        val tvResendOtp = view.findViewById<TextView>(R.id.tv_resend_otp)
-        val edtOtp = view.findViewById<EditText>(R.id.edt_otp)
-        tvResendOtp.setOnClickListener {
-            val resendOtpRequestPayload = AppPayloads.getResendOtpRequestPayload(
-                options.token.toString(),
-                options.subMerchantId.toString(),
-                options.orderId.toString(),
-                paymentMode,
-                transactionId
-            )
-            NimbblPayCheckoutBaseSDK.getInstance(applicationContext)
-                ?.process(resendOtpRequestPayload)
-        }
-        val drawable = resources.getDrawable(R.drawable.bank)
-
-
-        builder.setPositiveButton("Complete Payment") { _, _ ->
-            val strOtp = edtOtp.text.toString().trim()
-            payLaterCompletePayment(
-                paymentMode,
-                transactionId,
-                strOtp,
-                value_payment_type_otp,
-                drawable
-            )
-        }
-        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-
-        builder.show()
-    }
 
     private fun setPaymentDialogInitialSetting(paymentMode: String, drawable: Drawable) {
-        val ivPdTitle = paymentView.findViewById<ImageView>(R.id.iv_pd_title)
-        val tvPdTextView = paymentView.findViewById<TextView>(R.id.tv_pd_title)
+        val ivPdTitle = paymentView?.findViewById<ImageView>(R.id.iv_pd_title)
+        val tvPdTextView = paymentView?.findViewById<TextView>(R.id.tv_pd_title)
         val cardDetailContainer =
-            paymentView.findViewById<RelativeLayout>(R.id.card_detail_container)
-        val bankDetailContainer =
-            paymentView.findViewById<RelativeLayout>(R.id.netBanking_detail_container)
-        val upiDetailContainer = paymentView.findViewById<RelativeLayout>(R.id.upi_detail_container)
-        val walletDetailContainer =
-            paymentView.findViewById<RelativeLayout>(R.id.wallet_detail_container)
-        cardDetailContainer.visibility = View.GONE
-        bankDetailContainer.visibility = View.GONE
-        upiDetailContainer.visibility = View.GONE
-        walletDetailContainer.visibility = View.GONE
+            paymentView?.findViewById<RelativeLayout>(R.id.card_detail_container)
+        val bankDetailContainer = paymentView?.findViewById<RelativeLayout>(R.id.netBanking_detail_container)
+        val upiDetailContainer = paymentView?.findViewById<RelativeLayout>(R.id.upi_detail_container)
+        val walletDetailContainer = paymentView?.findViewById<RelativeLayout>(R.id.wallet_detail_container)
+        val payLaterOtpContainer =  paymentView?.findViewById<LinearLayout>(R.id.paylater_otp_container)
+        val paymentEnquiryContainer =  paymentView?.findViewById<LinearLayout>(R.id.paymentEnquiry_container)
+
+        cardDetailContainer?.visibility = View.GONE
+        bankDetailContainer?.visibility = View.GONE
+        upiDetailContainer?.visibility = View.GONE
+        walletDetailContainer?.visibility = View.GONE
+        payLaterOtpContainer?.visibility = View.GONE
+        paymentEnquiryContainer?.visibility = View.GONE
         if (tvPdTextView != null) {
-            tvPdTextView.text = "Pay with $paymentMode"
+            if(paymentMode.isNotEmpty()) {
+                tvPdTextView.visibility = View.VISIBLE
+                ivPdTitle?.visibility = View.VISIBLE
+                tvPdTextView.text = "Pay with $paymentMode"
+            }else{
+                tvPdTextView.visibility = View.GONE
+                ivPdTitle?.visibility = View.GONE
+            }
         }
         if (ivPdTitle != null) {
             ivPdTitle.background = drawable
         }
-        val btnClose = paymentView.findViewById<Button>(R.id.btn_pd_cancel)
-        btnClose.setOnClickListener {
+        val btnClose = paymentView?.findViewById<Button>(R.id.btn_pd_cancel)
+        btnClose?.visibility = View.VISIBLE
+        btnClose?.setOnClickListener {
             paymentDialog?.dismiss()
         }
         paymentDialog?.show()
@@ -639,28 +606,30 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun openPaymentDialog(paymentMode: String) {
-        val ivPdTitle = paymentView.findViewById<ImageView>(R.id.iv_pd_title)
-        val tvPdTextView = paymentView.findViewById<TextView>(R.id.tv_pd_title)
+        val ivPdTitle = paymentView?.findViewById<ImageView>(R.id.iv_pd_title)
+        val tvPdTextView = paymentView?.findViewById<TextView>(R.id.tv_pd_title)
         val cardDetailContainer =
-            paymentView.findViewById<RelativeLayout>(R.id.card_detail_container)
+            paymentView?.findViewById<RelativeLayout>(R.id.card_detail_container)
         val bankDetailContainer =
-            paymentView.findViewById<RelativeLayout>(R.id.netBanking_detail_container)
-        val upiDetailContainer = paymentView.findViewById<RelativeLayout>(R.id.upi_detail_container)
+            paymentView?.findViewById<RelativeLayout>(R.id.netBanking_detail_container)
+        val upiDetailContainer = paymentView?.findViewById<RelativeLayout>(R.id.upi_detail_container)
         val walletDetailContainer =
-            paymentView.findViewById<RelativeLayout>(R.id.wallet_detail_container)
-        cardDetailContainer.visibility = View.GONE
-        bankDetailContainer.visibility = View.GONE
-        upiDetailContainer.visibility = View.GONE
-        walletDetailContainer.visibility = View.GONE
-        val btnPayment = paymentView.findViewById<Button>(R.id.btn_pd_pay)
-        btnPayment.visibility = View.GONE
+            paymentView?.findViewById<RelativeLayout>(R.id.wallet_detail_container)
+        cardDetailContainer?.visibility = View.GONE
+        bankDetailContainer?.visibility = View.GONE
+        upiDetailContainer?.visibility = View.GONE
+        walletDetailContainer?.visibility = View.GONE
+        val btnPayment = paymentView?.findViewById<Button>(R.id.btn_pd_pay)
+        btnPayment?.text = "Pay ₹ ${options.amount.toDouble()}"
+        btnPayment?.visibility = View.GONE
+
         if (tvPdTextView != null) {
             tvPdTextView.text = "Pay with $paymentMode"
         }
         when (paymentMode) {
             value_payment_mode_card -> {
                 try {
-                    paymentView.edt_card_number.addTextChangedListener(object : TextWatcher {
+                    paymentView?.edt_card_number?.addTextChangedListener(object : TextWatcher {
                         override fun afterTextChanged(s: Editable) {
                             try {
                                 if (!isInputCorrect(
@@ -711,7 +680,7 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
                         }
                     })
 
-                    paymentView.edt_cvv.addTextChangedListener(object : TextWatcher {
+                    paymentView?.edt_cvv?.addTextChangedListener(object : TextWatcher {
                         override fun afterTextChanged(s: Editable) {
                             if (s.length > CARD_CVC_TOTAL_SYMBOLS) {
                                 s.delete(CARD_CVC_TOTAL_SYMBOLS, s.length)
@@ -730,7 +699,7 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
                         }
                     })
 
-                    paymentView.edt_expiry.addTextChangedListener(object : TextWatcher {
+                    paymentView?.edt_expiry?.addTextChangedListener(object : TextWatcher {
                         override fun afterTextChanged(s: Editable) {
                             if (!isInputCorrect(
                                     s,
@@ -769,7 +738,7 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
                 if (ivPdTitle != null) {
                     ivPdTitle.background = resources.getDrawable(R.drawable.credit_card, null)
                 }
-                btnPayment.visibility = View.VISIBLE
+                btnPayment?.visibility = View.VISIBLE
             }
             value_payment_mode_netbanking -> {
 
@@ -779,7 +748,7 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
                 if (ivPdTitle != null) {
                     ivPdTitle.background = resources.getDrawable(R.drawable.bank, null)
                 }
-                btnPayment.visibility = View.VISIBLE
+                btnPayment?.visibility = View.VISIBLE
             }
             value_payment_mode_upi -> {
 
@@ -789,7 +758,7 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
                 if (ivPdTitle != null) {
                     ivPdTitle.background = resources.getDrawable(R.drawable.bhim, null)
                 }
-                btnPayment.visibility = View.VISIBLE
+                btnPayment?.visibility = View.VISIBLE
             }
             value_payment_mode_wallet -> {
                 if (walletDetailContainer != null) {
@@ -802,28 +771,28 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
         }
         paymentDialog?.show()
 
-        val btnClose = paymentView.findViewById<Button>(R.id.btn_pd_cancel)
-        btnClose.setOnClickListener {
+        val btnClose = paymentView?.findViewById<Button>(R.id.btn_pd_cancel)
+        btnClose?.setOnClickListener {
             paymentDialog?.dismiss()
         }
 
-        btnPayment.setOnClickListener {
+        btnPayment?.setOnClickListener {
             when (paymentMode) {
                 value_payment_mode_card -> {
                     val validateCardPayload = AppPayloads.validateCardDetailPayload(
                         options.token.toString(),
                         options.subMerchantId.toString(),
                         options.orderId.toString(),
-                        paymentView.edt_card_number.text.toString().trim(),
-                        paymentView.edt_expiry.text.toString().trim(),
-                        paymentView.edt_cvv.text.toString().trim(),
-                        paymentView.edt_card_holder_name.text.toString().trim()
+                        paymentView?.edt_card_number?.text.toString().trim(),
+                        paymentView?.edt_expiry?.text.toString().trim(),
+                        paymentView?.edt_cvv?.text.toString().trim(),
+                        paymentView?.edt_card_holder_name?.text.toString().trim()
                     )
                     NimbblPayCheckoutBaseSDK.getInstance(applicationContext)
                         ?.process(validateCardPayload)
                 }
                 value_payment_mode_upi -> {
-                  val upiId = paymentView.edt_upi_id.text.toString()
+                  val upiId = paymentView?.edt_upi_id?.text.toString()
                     if(upiId.isEmpty()){
                         displayToast("Please enter upi id to proceed.")
                     }else{
@@ -841,13 +810,38 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
     fun payLaterCompletePayment(
         paymentMode: String,
         transactionId: String,
-        strOtp: String,
-        paymentType: String,
+        isOtpRequired: Boolean,
         drawable: Drawable
     ) {
         setPaymentDialogInitialSetting(paymentMode, drawable)
-        val btnPayment = paymentView.findViewById<Button>(R.id.btn_pd_pay)
-        btnPayment.setOnClickListener {
+        var paymentType = PayloadKeys.value_payment_type_auto_debit
+        val payLaterOtpContainer =  paymentView?.findViewById<LinearLayout>(R.id.paylater_otp_container)
+        if(isOtpRequired) {
+         paymentType =  value_payment_type_otp
+
+            payLaterOtpContainer?.visibility  = View.VISIBLE
+        }else{
+            payLaterOtpContainer?.visibility  = View.GONE
+        }
+
+        val tvResendOtp = paymentView?.findViewById<TextView>(R.id.tv_resend_otp)
+        val edtOtp = paymentView?.findViewById<EditText>(R.id.edt_otp)
+        edtOtp?.setText("")
+        tvResendOtp?.setOnClickListener {
+            val resendOtpRequestPayload = AppPayloads.getResendOtpRequestPayload(
+                options.token.toString(),
+                options.subMerchantId.toString(),
+                options.orderId.toString(),
+                paymentMode,
+                transactionId
+            )
+            NimbblPayCheckoutBaseSDK.getInstance(applicationContext)
+                ?.process(resendOtpRequestPayload)
+        }
+
+        val btnPayment = paymentView?.findViewById<Button>(R.id.btn_pd_pay)
+        btnPayment?.text = "Pay ₹ ${options.amount.toDouble()}"
+        btnPayment?.setOnClickListener {
             val completePaymentRequestPayload = AppPayloads.getCompletePaymentRequestPayload(
                 options.token.toString(),
                 options.subMerchantId.toString(),
@@ -855,7 +849,7 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
                 paymentMode,
                 paymentType,
                 transactionId,
-                otp = strOtp
+                edtOtp?.text.toString()
             )
             NimbblPayCheckoutBaseSDK.getInstance(applicationContext)
                 ?.process(completePaymentRequestPayload)
@@ -864,7 +858,7 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
     }
 
     private fun setUpListOfWallet(itemCol: List<Item>?) {
-        val rwWallet = paymentView.findViewById<RecyclerView>(R.id.rw_wallet)
+        val rwWallet = paymentView?.findViewById<RecyclerView>(R.id.rw_wallet)
         val customAdapter = itemCol?.let { ListOfWalletAdapter(this, it) }
         if (rwWallet != null) {
             rwWallet.adapter = customAdapter
@@ -897,8 +891,8 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
 
     private fun setUpListOfBanks(paymentMode: String, items: List<Item>) {
 
-        val rwBank = paymentView.findViewById<RecyclerView>(R.id.rw_banks)
-        val spnBank = paymentView.findViewById<Spinner>(R.id.spn_bank)
+        val rwBank = paymentView?.findViewById<RecyclerView>(R.id.rw_banks)
+        val spnBank = paymentView?.findViewById<Spinner>(R.id.spn_bank)
         val defaultItem = Item(
             null, null, null, null, null, null, null, "-1", "Select Bank", null, null, null, null,
             null, null, null
@@ -1016,8 +1010,9 @@ class NimbblNativePaymentActivity : AppCompatActivity(),
         drawable: Drawable
     ) {
         setPaymentDialogInitialSetting(paymentMode, drawable)
-        val btnPayment = paymentView.findViewById<Button>(R.id.btn_pd_pay)
-        btnPayment.setOnClickListener {
+        val btnPayment = paymentView?.findViewById<Button>(R.id.btn_pd_pay)
+        btnPayment?.text = "Pay ₹ ${options.amount.toDouble()}"
+        btnPayment?.setOnClickListener {
             val completePaymentRequestPayload =
                 AppPayloads.getUpiIntentCompletePaymentRequestPayload(
                     options.token.toString(),

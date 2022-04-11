@@ -13,7 +13,7 @@ import com.example.nimbbl.model.CatalogModel
 import com.example.nimbbl.network.ApiCall.Companion.BASE_URL
 import com.example.nimbbl.repository.CatalogRepository
 import com.example.nimbbl.ui.NimbblConfigActivity
-import com.example.nimbbl.ui.NimbblNativePaymentActivity
+import com.example.nimbbl.ui.NimbblNativePaymentMethodsActivity
 import com.example.nimbbl.ui.OrderSucessPageAcitivty
 import com.example.nimbbl.ui.adapters.Catalog_Adapter
 import com.example.nimbbl.utils.AppPayloads
@@ -224,7 +224,7 @@ class MainActivity : AppCompatActivity(), NimbblCheckoutPaymentListener,
         } else {
             val options = b.setPackageName(accessKey).setOrderId(orderId).setToken(token)
                 .setSubMerchantId(subMerchantId).build()
-            val intent = Intent(this, NimbblNativePaymentActivity::class.java)
+            val intent = Intent(this, NimbblNativePaymentMethodsActivity::class.java)
             intent.putExtra("options", options)
             startActivity(intent)
 

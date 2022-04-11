@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.nimbbl.R
-import com.example.nimbbl.ui.NimbblNativePaymentActivity
+import com.example.nimbbl.ui.NimbblNativePaymentMethodsActivity
 import com.zl.nimbblpaycoresdk.models.Item
 
 
@@ -16,7 +16,7 @@ import com.zl.nimbblpaycoresdk.models.Item
 Created by Sandeep Yadav on 28/02/22.
 Copyright (c) 2022 Bigital Technologies Pvt Ltd. All rights reserved.
 */
-class ListOfWalletAdapter(private var context: NimbblNativePaymentActivity, private val itemCol: List<Item>) : RecyclerView.Adapter<WalletListViewHolder>() {
+class ListOfWalletAdapter(private var context: NimbblNativePaymentMethodsActivity, private val itemCol: List<Item>) : RecyclerView.Adapter<WalletListViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WalletListViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -51,7 +51,7 @@ class WalletListViewHolder (inflater: LayoutInflater, parent: ViewGroup):
 
 
     }
-    fun bind(item: Item, context: NimbblNativePaymentActivity){
+    fun bind(item: Item, context: NimbblNativePaymentMethodsActivity){
         tvName!!.text = item.sub_payment_name
         ivIcon?.let {
             Glide.with(context).load(item.logo_url)

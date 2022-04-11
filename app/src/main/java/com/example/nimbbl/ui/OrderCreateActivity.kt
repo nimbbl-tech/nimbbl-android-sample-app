@@ -208,7 +208,8 @@ class OrderCreateActivity : AppCompatActivity(),
                                 Log.i("response", response.body()!!.order_id)
                                 makePayment(
                                     response.body()!!.order_id,
-                                    response.body()!!.sub_merchant_id.toString()
+                                    response.body()!!.sub_merchant_id.toString(),
+                                    skuAmount.toInt()
                                 )
                             }
                         }
@@ -229,7 +230,7 @@ class OrderCreateActivity : AppCompatActivity(),
     }
 
 
-    private fun makePayment(orderId: String, subMerchantId: String) {
+    private fun makePayment(orderId: String, subMerchantId: String, skuAmount: Int) {
         val b = com.zl.nimbblpaycoresdk.models.NimbblCheckoutOptions.Builder()
         val preferences = getSharedPreferences(APP_PREFERENCE, MODE_PRIVATE)
 
@@ -240,9 +241,9 @@ class OrderCreateActivity : AppCompatActivity(),
             NimbblCheckoutSDK.instance?.init(this)
             NimbblCheckoutSDK.instance?.checkout(options)
         } else {
-            val options = b.setPackageName(application.packageName).setOrderId(orderId).setToken(token)
+            val options = b.setPackageName(application.packageName).setOrderId(orderId).setToken(token).setAmount(skuAmount)
                 .setSubMerchantId(subMerchantId).build()
-            val intent = Intent(this, NimbblNativePaymentActivity::class.java)
+            val intent = Intent(this, NimbblNativePaymentMethodsActivity::class.java)
             intent.putExtra("options", options)
             startActivity(intent)
 

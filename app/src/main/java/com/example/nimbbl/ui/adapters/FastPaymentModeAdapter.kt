@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.nimbbl.R
-import com.example.nimbbl.ui.NimbblNativePaymentActivity
+import com.example.nimbbl.ui.NimbblNativePaymentMethodsActivity
 import com.zl.nimbblpaycoresdk.models.Item
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.value_payment_type_auto_debit
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.value_upi_flow_mode_server_intent
@@ -18,7 +18,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 
 class FastPaymentModeAdapter(
     private val list: List<Item>,
-    private val context: NimbblNativePaymentActivity
+    private val context: NimbblNativePaymentMethodsActivity
 ) :
     RecyclerView.Adapter<PaymentModeItemViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PaymentModeItemViewHolder {
@@ -57,7 +57,7 @@ class PaymentModeItemViewHolder(inflater: LayoutInflater, parent: ViewGroup) :
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    fun bind(item: Item, context: NimbblNativePaymentActivity) {
+    fun bind(item: Item, context: NimbblNativePaymentMethodsActivity) {
         tvTitle!!.text = item.sub_payment_name
         if(item.extraInfo != null  && item.extraInfo!!.vpa_id != null && item.extraInfo!!.vpa_id!!.isNotEmpty()) {
             tvSubTitle!!.visibility = View.VISIBLE
@@ -80,9 +80,7 @@ class PaymentModeItemViewHolder(inflater: LayoutInflater, parent: ViewGroup) :
                     ivIcon?.let { it1 ->
                         context.payLaterCompletePayment(
                             item.sub_payment_name.toString(),
-                            "",
-                            "",
-                            value_payment_type_auto_debit,
+                            "", false,
                             it1.drawable
                         )
                     }
