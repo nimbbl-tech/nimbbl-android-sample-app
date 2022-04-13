@@ -2,40 +2,38 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingBottom="15dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:id="@+id/ll_main_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="15dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="15dp">
 
         <LinearLayout
             android:id="@+id/ll_title_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="15dp">
+            android:layout_marginBottom="15dp"
+            android:orientation="horizontal">
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/iv_pd_title"
                 android:layout_width="30dp"
                 android:layout_height="match_parent"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="20dp"/>
+                android:layout_marginStart="20dp" />
 
             <TextView
                 android:id="@+id/tv_pd_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
                 android:layout_marginStart="20dp"
-                android:layout_toEndOf="@+id/iv_upi"
                 android:text="UPI"
-                android:textStyle="bold"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/black" />
+                android:textColor="@color/black"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <RelativeLayout
@@ -148,10 +146,44 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:background="@drawable/editext_rounded_corner"
-                android:hint="Enter UPI ID"
+                android:hint="yourname@bankname"
                 android:padding="5dip"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/tv_user_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/edt_upi_id"
+                android:text="Hello,"
+                android:visibility="gone"
+                android:layout_marginTop="10dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/tv_upi_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv_user_name"
+                android:text="Hello,"
+                android:visibility="gone"
+                android:layout_marginTop="10dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/tv_upi_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv_upi_id"
+                android:text="You will get a notification on your Google Pay app, tap pay to complete the payment transaction"
+                android:layout_marginTop="10dp"
+                android:visibility="gone"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/black"/>
+
         </RelativeLayout>
 
         <RelativeLayout
@@ -169,35 +201,39 @@
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:spanCount="3" />
         </RelativeLayout>
+
         <LinearLayout
             android:id="@+id/paylater_otp_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
+
             <EditText
                 android:id="@+id/edt_otp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Enter OTP"
-                android:inputType="number"/>
+                android:inputType="number" />
+
             <TextView
                 android:id="@+id/tv_resend_otp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="end"
                 android:layout_marginTop="5dp"
-                android:textStyle="bold"
-                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/tv_resend_otp"
-                android:layout_gravity="end"/>
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textStyle="bold" />
 
         </LinearLayout>
+
         <LinearLayout
             android:id="@+id/paymentEnquiry_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <LinearLayout
                 android:id="@+id/ll_order_id_container"
@@ -344,9 +380,8 @@
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
+        android:layout_height="60dp"
         android:layout_marginEnd="15dp"
-        android:layout_marginBottom="15dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true">
 
@@ -354,6 +389,8 @@
             android:id="@+id/btn_pd_cancel"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:paddingStart="25dp"
+            android:paddingEnd="25dp"
             android:text="Cancel" />
 
         <androidx.appcompat.widget.AppCompatButton
@@ -361,6 +398,8 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="20dp"
+            android:paddingStart="25dp"
+            android:paddingEnd="25dp"
             android:textStyle="bold"
             android:text="Make Payment" />
     </LinearLayout>

@@ -15,6 +15,7 @@ import android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -64,7 +65,9 @@ import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_status
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_sub_payment_name
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_transaction_id
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_user_name
+import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_vpa_account_holder
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_vpa_id
+import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_vpa_valid
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.value_payment_mode_card
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.value_payment_mode_icici_paylater
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.value_payment_mode_lazypay
@@ -81,7 +84,6 @@ import kotlinx.android.synthetic.main.layout_others.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import org.json.JSONObject
 import tech.nimbbl.checkout.sdk.RestApiUtils
-import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
@@ -103,9 +105,10 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         window.setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN)
         setContentView(R.layout.activity_nimbbl_native_payment_methods)
-        NimbblPayCheckoutBaseSDK.getInstance(applicationContext)?.isInitialised(this)
+       // NimbblPayCheckoutBaseSDK.getInstance(applicationContext)?.initialisedNimbblSDK(this)
         if (intent.hasExtra(tagOption)) {
             options = intent.getParcelableExtra(tagOption)!!
+            tv_amount.text = "₹ ${options.amount.toDouble()}"
             val tokenKey = options.packageName
             if (TextUtils.isEmpty(tokenKey)) {
                 displayToast(getString(tech.nimbbl.checkout.sdk.R.string.key_not_set))
@@ -118,14 +121,13 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
             displayToast(getString(tech.nimbbl.checkout.sdk.R.string.input_sent_invalid))
         }
         try {
-            NimbblPayCheckoutBaseSDK.getInstance(applicationContext)?.registerCallback(this, this)
+            NimbblPayCheckoutBaseSDK.getInstance(applicationContext)?.registerCallback(this,this)
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
         val resolveUserPayload = AppPayloads.resolveUserPayload(
             options.token.toString(),
-            options.subMerchantId.toString(),
             options.orderId.toString()
         )
         NimbblPayCheckoutBaseSDK.getInstance(applicationContext)?.process(resolveUserPayload)
@@ -160,7 +162,6 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
             val initiatePaymentPayload = AppPayloads.upiInitiatePaymentRequestPayload(
                 upiId,
                 options.token.toString(),
-                options.subMerchantId.toString(),
                 options.orderId.toString()
             )
             NimbblPayCheckoutBaseSDK.getInstance(applicationContext)
@@ -217,7 +218,6 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
 
                             val initiateOrderPayload = AppPayloads.initialiseOrderPayload(
                                 options.token.toString(),
-                                options.subMerchantId.toString(),
                                 options.orderId.toString()
                             )
                             NimbblPayCheckoutBaseSDK.getInstance(applicationContext)
@@ -227,7 +227,6 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
                     action_initiateOrder -> {
                         val paymentModePayload = AppPayloads.paymentModesPayload(
                             options.token.toString(),
-                            options.subMerchantId.toString(),
                             options.orderId.toString()
                         )
                         NimbblPayCheckoutBaseSDK.getInstance(applicationContext)
@@ -282,7 +281,6 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
                             "card",
                             cardCategory,
                             options.token.toString(),
-                            options.subMerchantId.toString(),
                             options.orderId.toString()
                         )
                         NimbblPayCheckoutBaseSDK.getInstance(applicationContext)
@@ -301,15 +299,35 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
                             val drawable = resources.getDrawable(R.drawable.ic_wallet)
                             payLaterCompletePayment(paymentMode,transactionId,true,drawable)
                         } else if (paymentMode.equals(value_payment_mode_upi)) {
-                            val completePaymentRequestPayload =
-                                AppPayloads.getUpiCompletePaymentRequestPayload(
-                                    options.token.toString(),
-                                    options.subMerchantId.toString(),
-                                    options.orderId.toString(),
-                                    data.getJSONObject(key_nimbblPayload).getString(key_vpa_id)
-                                )
-                            NimbblPayCheckoutBaseSDK.getInstance(applicationContext)
-                                ?.process(completePaymentRequestPayload)
+                            val isVpaValid = data.getJSONObject(key_nimbblPayload).getInt(key_vpa_valid)
+                            if(paymentView?.upi_detail_container?.isVisible == true){
+                                if(isVpaValid ==1) {
+                                    val vpaId= data.getJSONObject(key_nimbblPayload).getString(key_vpa_id)
+                                    val vpaAccountHolder= data.getJSONObject(key_nimbblPayload).getString(key_vpa_account_holder)
+                                    paymentView?.tv_user_name!!.visibility = View.VISIBLE
+                                    paymentView?.tv_user_name!!.text  ="Name: $vpaAccountHolder"
+                                    paymentView?.tv_upi_id!!.visibility = View.VISIBLE
+                                    paymentView?.tv_upi_id!!.text ="UPI ID: $vpaId"
+                                    paymentView?.tv_upi_message!!.visibility = View.VISIBLE
+                                    paymentView?.btn_pd_pay!!.text = "Pay ₹ ${options.amount.toDouble()}"
+                                }else {
+                                    displayToast("Please enter valid upi id.")
+                                }
+                            }else{
+                                if(isVpaValid ==1) {
+                                    val completePaymentRequestPayload =
+                                        AppPayloads.getUpiCompletePaymentRequestPayload(
+                                            options.token.toString(),
+                                            options.orderId.toString(),
+                                            data.getJSONObject(key_nimbblPayload).getString(key_vpa_id)
+                                        )
+                                    NimbblPayCheckoutBaseSDK.getInstance(applicationContext)
+                                        ?.process(completePaymentRequestPayload)
+                                }else{
+                                    displayToast("UPI id is invalid. Please contact support.")
+                                }
+                            }
+
                         }
                     }
                     action_completePayment -> {
@@ -325,7 +343,6 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
                             val paymentEnqRequestPayload =
                                 AppPayloads.getTransactionEnquiryRequestPayload(
                                     options.token.toString(),
-                                    options.subMerchantId.toString(),
                                     options.orderId.toString(),
                                     paymentMode,
                                     transactionId
@@ -452,7 +469,6 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
                 val paymentEnqRequestPayload =
                     AppPayloads.getTransactionEnquiryRequestPayload(
                         options.token.toString(),
-                        options.subMerchantId.toString(),
                         options.orderId.toString(),
                         paymentMode,
                         transactionId
@@ -474,7 +490,6 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
                     val paymentEnqRequestPayload =
                         AppPayloads.getTransactionEnquiryRequestPayload(
                             options.token.toString(),
-                            options.subMerchantId.toString(),
                             options.orderId.toString(),
                             paymentMode,
                             transactionId
@@ -497,7 +512,6 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
                 val paymentEnqRequestPayload =
                     AppPayloads.getTransactionEnquiryRequestPayload(
                         options.token.toString(),
-                        options.subMerchantId.toString(),
                         options.orderId.toString(),
                         paymentMode,
                         transactionId
@@ -552,9 +566,11 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
         }
 
         val btnPayment = paymentView?.findViewById<Button>(R.id.btn_pd_pay)
+        btnPayment?.visibility = View.VISIBLE
         btnPayment?.text = getString(R.string.lbl_done)
         btnPayment?.setOnClickListener {
             if (paymentDialog != null && paymentDialog!!.isShowing) {
+                NimbblPayCheckoutBaseSDK.getInstance(applicationContext)?.terminate()
                 paymentDialog!!.dismiss()
                 paymentDialog = null
             }
@@ -659,7 +675,6 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
                                 val cardBinDataPayload = AppPayloads.binDataRequestPayload(
                                     s.toString(),
                                     options.token.toString(),
-                                    options.subMerchantId.toString(),
                                     options.orderId.toString()
                                 )
                                 NimbblPayCheckoutBaseSDK.getInstance(applicationContext)
@@ -759,6 +774,7 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
                     ivPdTitle.background = resources.getDrawable(R.drawable.bhim, null)
                 }
                 btnPayment?.visibility = View.VISIBLE
+                btnPayment?.text = "Verify"
             }
             value_payment_mode_wallet -> {
                 if (walletDetailContainer != null) {
@@ -781,7 +797,6 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
                 value_payment_mode_card -> {
                     val validateCardPayload = AppPayloads.validateCardDetailPayload(
                         options.token.toString(),
-                        options.subMerchantId.toString(),
                         options.orderId.toString(),
                         paymentView?.edt_card_number?.text.toString().trim(),
                         paymentView?.edt_expiry?.text.toString().trim(),
@@ -792,15 +807,30 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
                         ?.process(validateCardPayload)
                 }
                 value_payment_mode_upi -> {
-                  val upiId = paymentView?.edt_upi_id?.text.toString()
-                    if(upiId.isEmpty()){
-                        displayToast("Please enter upi id to proceed.")
+                    val upiId = paymentView?.edt_upi_id?.text.toString()
+                    if(btnPayment.text.toString().equals("Verify",true)) {
+                        if(upiId.isEmpty()) {
+                            displayToast("Please enter upi id to proceed.")
+                        }else{
+                            val initiatePaymentPayload = AppPayloads.upiInitiatePaymentRequestPayload(
+                                upiId,
+                                options.token.toString(),
+                                options.orderId.toString()
+                            )
+                            NimbblPayCheckoutBaseSDK.getInstance(applicationContext)
+                                ?.process(initiatePaymentPayload)
+                        }
                     }else{
-                        upiInitiatePayment(
-                            "Upi",upiId,
-                            resources.getDrawable(R.drawable.bhim)
-                        )
+                        val completePaymentRequestPayload =
+                            AppPayloads.getUpiCompletePaymentRequestPayload(
+                                options.token.toString(),
+                                options.orderId.toString(),
+                                upiId
+                            )
+                        NimbblPayCheckoutBaseSDK.getInstance(applicationContext)
+                            ?.process(completePaymentRequestPayload)
                     }
+
                 }
 
             }
@@ -830,7 +860,6 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
         tvResendOtp?.setOnClickListener {
             val resendOtpRequestPayload = AppPayloads.getResendOtpRequestPayload(
                 options.token.toString(),
-                options.subMerchantId.toString(),
                 options.orderId.toString(),
                 paymentMode,
                 transactionId
@@ -844,7 +873,6 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
         btnPayment?.setOnClickListener {
             val completePaymentRequestPayload = AppPayloads.getCompletePaymentRequestPayload(
                 options.token.toString(),
-                options.subMerchantId.toString(),
                 options.orderId.toString(),
                 paymentMode,
                 paymentType,
@@ -878,15 +906,20 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
     }
 
     private fun setUpRecyclerView(items: List<Item>) {
-        val ctx = this
-        rv_fast_payment_methods.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter =
-                FastPaymentModeAdapter(
-                    items,
-                    ctx
-                )
+        if(items.isNotEmpty()) {
+            val ctx = this
+            rv_fast_payment_methods.apply {
+                layoutManager = LinearLayoutManager(context)
+                adapter =
+                    FastPaymentModeAdapter(
+                        items,
+                        ctx
+                    )
+            }
+            tv_header_Fast.visibility = View.VISIBLE
         }
+        tv_header_others.visibility = View.VISIBLE
+        inc_layout_others.visibility =  View.VISIBLE
     }
 
     private fun setUpListOfBanks(paymentMode: String, items: List<Item>) {
@@ -950,7 +983,6 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
         val initiatePaymentPayload = AppPayloads.initiatePaymentPayload(
             paymentMode, item,
             options.token.toString(),
-            options.subMerchantId.toString(),
             options.orderId.toString()
         )
         NimbblPayCheckoutBaseSDK.getInstance(applicationContext)?.process(initiatePaymentPayload)
@@ -1016,7 +1048,6 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
             val completePaymentRequestPayload =
                 AppPayloads.getUpiIntentCompletePaymentRequestPayload(
                     options.token.toString(),
-                    options.subMerchantId.toString(),
                     options.orderId.toString(),
                     paymentMode,
                     subPaymentMode,

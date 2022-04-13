@@ -12,7 +12,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.nimbbl.R
 import com.example.nimbbl.ui.NimbblNativePaymentMethodsActivity
 import com.zl.nimbblpaycoresdk.models.Item
-import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.value_payment_type_auto_debit
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.value_upi_flow_mode_server_intent
 import kotlinx.coroutines.DelicateCoroutinesApi
 

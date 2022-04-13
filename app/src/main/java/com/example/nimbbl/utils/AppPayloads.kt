@@ -25,7 +25,6 @@ import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_otp
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_packageName
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_payment_mode
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_payment_type
-import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_subMerchantId
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_sub_payment_mode
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_token
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.key_transaction_id
@@ -109,14 +108,11 @@ object AppPayloads {
 
     fun initResourcePayload(
         token: String,
-        subMerchantId: String,
         packageName: String
     ): JSONObject {
         val inputInItPayload = JSONObject()
         try {
             inputInItPayload.put(key_token, token)
-            inputInItPayload.put(key_subMerchantId, subMerchantId)
-
             val nimbblJsonPayload = JSONObject()
             nimbblJsonPayload.put(key_packageName, packageName)
             inputInItPayload.put(key_nimbblPayload, nimbblJsonPayload)
@@ -129,14 +125,12 @@ object AppPayloads {
 
     fun initialiseOrderPayload(
         token: String,
-        subMerchantId: String,
         orderID: String
     ): JSONObject {
         val initiatePayload = JSONObject()
         try {
             initiatePayload.put(key_action, action_initiateOrder)
             initiatePayload.put(key_token, token)
-            initiatePayload.put(key_subMerchantId, subMerchantId)
             val nimbblPayloadObj = JSONObject()
             nimbblPayloadObj.put(key_OrderID, orderID)
             initiatePayload.put(key_nimbblPayload, nimbblPayloadObj)
@@ -149,14 +143,12 @@ object AppPayloads {
 
     fun paymentModesPayload(
         token: String,
-        subMerchantId: String,
         orderID: String
     ): JSONObject {
         val initiatePayload = JSONObject()
         try {
             initiatePayload.put(key_action, action_paymentModes)
             initiatePayload.put(key_token, token)
-            initiatePayload.put(key_subMerchantId, subMerchantId)
             val nimbblPayloadObj = JSONObject()
             nimbblPayloadObj.put(key_OrderID, orderID)
             initiatePayload.put(key_nimbblPayload, nimbblPayloadObj)
@@ -171,14 +163,12 @@ object AppPayloads {
         payment_mode: String,
         item: Item,
         token: String,
-        subMerchantId: String,
         orderID: String
     ): JSONObject {
         val initiatePaymentPayload = JSONObject()
         try {
             initiatePaymentPayload.put(key_action, action_initiatePayment)
             initiatePaymentPayload.put(key_token, token)
-            initiatePaymentPayload.put(key_subMerchantId, subMerchantId)
             val nimbblPayloadObj = JSONObject()
             nimbblPayloadObj.put(key_OrderID, orderID)
             nimbblPayloadObj.put(key_payment_mode, payment_mode)
@@ -192,14 +182,12 @@ object AppPayloads {
 
     fun resolveUserPayload(
         token: String,
-        subMerchantId: String,
         orderID: String
     ): JSONObject {
         val resolveUserPayload = JSONObject()
         try {
             resolveUserPayload.put(key_action, action_resolveUser)
             resolveUserPayload.put(key_token, token)
-            resolveUserPayload.put(key_subMerchantId, subMerchantId)
             val nimbblPayloadObj = JSONObject()
             nimbblPayloadObj.put(key_OrderID, orderID)
             resolveUserPayload.put(key_nimbblPayload, nimbblPayloadObj)
@@ -211,7 +199,6 @@ object AppPayloads {
 
     fun verifyUserPayload(
         token: String,
-        subMerchantId: String,
         orderID: String,
         mobileNo: String,
         otp: String
@@ -220,7 +207,6 @@ object AppPayloads {
         try {
             resolveUserPayload.put(key_action, action_verifyUser)
             resolveUserPayload.put(key_token, token)
-            resolveUserPayload.put(key_subMerchantId, subMerchantId)
             val nimbblPayloadObj = JSONObject()
             nimbblPayloadObj.put(key_OrderID, orderID)
             nimbblPayloadObj.put(key_mobileNumber, mobileNo)
@@ -238,14 +224,12 @@ object AppPayloads {
         cardCvv: String,
         cardHolderName: String,
         token: String,
-        subMerchantId: String,
         orderID: String
     ): JSONObject {
         val cardDetailPayload = JSONObject()
         try {
             cardDetailPayload.put(key_action, action_getBinData)
             cardDetailPayload.put(key_token, token)
-            cardDetailPayload.put(key_subMerchantId, subMerchantId)
             val nimbblPayloadObj = JSONObject()
             nimbblPayloadObj.put(key_OrderID, orderID)
             nimbblPayloadObj.put(key_card_number, cardNumber)
@@ -261,7 +245,6 @@ object AppPayloads {
 
     fun validateCardDetailPayload(
         token: String,
-        subMerchantId: String,
         orderID: String,
         cardNumber: String,
         cardExpiry: String,
@@ -272,7 +255,6 @@ object AppPayloads {
         try {
             cardDetailPayload.put(key_action, action_validateCard)
             cardDetailPayload.put(key_token, token)
-            cardDetailPayload.put(key_subMerchantId, subMerchantId)
             val nimbblPayloadObj = JSONObject()
             nimbblPayloadObj.put(key_OrderID, orderID)
             nimbblPayloadObj.put(key_card_number, cardNumber)
@@ -294,14 +276,12 @@ object AppPayloads {
         payment_mode: String,
         sub_payment_mode: String,
         token: String,
-        subMerchantId: String,
         orderID: String
     ): JSONObject {
         val initiatePaymentPayload = JSONObject()
         try {
             initiatePaymentPayload.put(key_action, action_initiatePayment)
             initiatePaymentPayload.put(key_token, token)
-            initiatePaymentPayload.put(key_subMerchantId, subMerchantId)
             val nimbblPayloadObj = JSONObject()
             nimbblPayloadObj.put(key_OrderID, orderID)
             nimbblPayloadObj.put(key_payment_mode, payment_mode)
@@ -321,14 +301,12 @@ object AppPayloads {
     fun binDataRequestPayload(
         cardNo: String,
         token: String,
-        subMerchantId: String,
         orderID: String
     ): JSONObject {
         val cardBinDataPayload = JSONObject()
         try {
             cardBinDataPayload.put(key_action, action_getBinData)
             cardBinDataPayload.put(key_token, token)
-            cardBinDataPayload.put(key_subMerchantId, subMerchantId)
             val nimbblPayloadObj = JSONObject()
             nimbblPayloadObj.put(key_OrderID, orderID)
             nimbblPayloadObj.put(key_card_number, cardNo)
@@ -342,7 +320,6 @@ object AppPayloads {
 
     fun getResendOtpRequestPayload(
         token: String,
-        subMerchantId: String,
         orderID: String,
         paymentMode: String,
         transactionId: String
@@ -351,7 +328,6 @@ object AppPayloads {
         try {
             resendOtpPayload.put(key_action, action_resendOtp)
             resendOtpPayload.put(key_token, token)
-            resendOtpPayload.put(key_subMerchantId, subMerchantId)
             val nimbblPayloadObj = JSONObject()
             nimbblPayloadObj.put(key_OrderID, orderID)
             nimbblPayloadObj.put(key_payment_mode, paymentMode)
@@ -366,7 +342,6 @@ object AppPayloads {
 
     fun getTransactionEnquiryRequestPayload(
         token: String,
-        subMerchantId: String,
         orderID: String,
         paymentMode: String,
         transactionId: String
@@ -375,7 +350,6 @@ object AppPayloads {
         try {
             transactionEnqPayload.put(key_action, action_paymentEnquiry)
             transactionEnqPayload.put(key_token, token)
-            transactionEnqPayload.put(key_subMerchantId, subMerchantId)
             val nimbblPayloadObj = JSONObject()
             nimbblPayloadObj.put(key_OrderID, orderID)
             nimbblPayloadObj.put(key_payment_mode, paymentMode)
@@ -390,7 +364,6 @@ object AppPayloads {
 
     fun getCompletePaymentRequestPayload(
         token: String,
-        subMerchantId: String,
         orderID: String,
         paymentMode: String,
         paymentType:String,
@@ -403,7 +376,6 @@ object AppPayloads {
         try {
             completePaymentPayload.put(key_action, action_completePayment)
             completePaymentPayload.put(key_token, token)
-            completePaymentPayload.put(key_subMerchantId, subMerchantId)
             val nimbblPayloadObj = JSONObject()
             nimbblPayloadObj.put(key_OrderID, orderID)
             nimbblPayloadObj.put(key_payment_mode, paymentMode)
@@ -422,7 +394,6 @@ object AppPayloads {
 
     fun getUpiIntentCompletePaymentRequestPayload(
         token: String,
-        subMerchantId: String,
         orderID: String,
         paymentMode: String,
         subPaymentMode: String,
@@ -433,7 +404,6 @@ object AppPayloads {
         try {
             upiIntentCompletePaymentPayload.put(key_action, action_completePayment)
             upiIntentCompletePaymentPayload.put(key_token, token)
-            upiIntentCompletePaymentPayload.put(key_subMerchantId, subMerchantId)
             val nimbblPayloadObj = JSONObject()
             nimbblPayloadObj.put(key_OrderID, orderID)
             nimbblPayloadObj.put(key_payment_mode, paymentMode)
@@ -455,14 +425,12 @@ object AppPayloads {
     fun upiInitiatePaymentRequestPayload(
         vpaId: String,
         token: String,
-        subMerchantId: String,
         orderID: String
     ): JSONObject {
         val upiReqPayload = JSONObject()
         try {
             upiReqPayload.put(key_action, action_initiatePayment)
             upiReqPayload.put(key_token, token)
-            upiReqPayload.put(key_subMerchantId, subMerchantId)
             val nimbblPayloadObj = JSONObject()
             nimbblPayloadObj.put(key_OrderID, orderID)
             nimbblPayloadObj.put(key_payment_mode, value_payment_mode_upi)
@@ -480,7 +448,6 @@ object AppPayloads {
 
     fun getUpiCompletePaymentRequestPayload(
         token: String,
-        subMerchantId: String,
         orderID: String,
         vpaId: String
     ): JSONObject {
@@ -488,7 +455,6 @@ object AppPayloads {
         try {
             upiReqPayload.put(key_action, action_completePayment)
             upiReqPayload.put(key_token, token)
-            upiReqPayload.put(key_subMerchantId, subMerchantId)
             val nimbblPayloadObj = JSONObject()
             nimbblPayloadObj.put(key_OrderID, orderID)
             nimbblPayloadObj.put(key_payment_mode, value_payment_mode_upi)

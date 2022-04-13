@@ -20,7 +20,6 @@ import com.zl.nimbblpaycoresdk.interfaces.NimbblCheckoutPaymentListener
 import com.zl.nimbblpaycoresdk.interfaces.NimbblInItResourceListener
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys
 import com.zl.nimbblpaycoresdk.utils.getAPIRequestBody
-import kotlinx.android.synthetic.main.activity_main.tv_settings
 import kotlinx.android.synthetic.main.activity_order_create.*
 import kotlinx.android.synthetic.main.activity_order_create.view.*
 import kotlinx.coroutines.CoroutineScope
@@ -38,7 +37,6 @@ class OrderCreateActivity : AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_order_create)
-        NimbblPayCheckoutBaseSDK.getInstance(applicationContext)?.isInitialised(this)
         initialisation()
         setListners()
     }
@@ -98,7 +96,6 @@ class OrderCreateActivity : AppCompatActivity(),
                         Log.i("SAN", "response.body().auth_principal?.skip_device_verification-->" + (response.body()?.result?.auth_principal?.skip_device_verification ?: ""))
                         val inputInItPayload = AppPayloads.initResourcePayload(
                             response.body()?.result?.token.toString(),
-                            response.body()?.result?.auth_principal?.sub_merchant_id.toString(),
                             application.packageName
                         )
                         NimbblPayCheckoutBaseSDK.getInstance(applicationContext)?.initResource(
@@ -270,12 +267,12 @@ class OrderCreateActivity : AppCompatActivity(),
         //    p0.get("payload") as MutableMap<String, Any>?
         Toast.makeText(
             this,
-            "OrderId=" + data.get("order_id") + ", Status=" + data.get("status"),
+            "OrderId=" + data["order_id"] + ", Status=" + data["status"],
             Toast.LENGTH_LONG
         ).show()
         val intent = Intent(this, OrderSucessPageAcitivty::class.java)
-        intent.putExtra("orderid", data.get("order_id").toString())
-        intent.putExtra("status", data.get("status").toString())
+        intent.putExtra("orderid", data["order_id"].toString())
+        intent.putExtra("status", data["status"].toString())
         startActivity(intent)
 
     }
