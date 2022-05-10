@@ -1,6 +1,7 @@
 package com.example.nimbbl.ui
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -15,7 +16,6 @@ import com.example.nimbbl.utils.AppPreferenceKeys.APP_TEST_MERCHANT
 import com.example.nimbbl.utils.AppPreferenceKeys.SAMPLE_APP_MODE
 import com.example.nimbbl.utils.AppPreferenceKeys.SHOP_BASE_URL
 import com.zl.nimbblpaycoresdk.NimbblPayCheckoutBaseSDK
-import com.zl.nimbblpaycoresdk.api.ServiceConstants
 import com.zl.nimbblpaycoresdk.interfaces.NimbblCheckoutPaymentListener
 import com.zl.nimbblpaycoresdk.interfaces.NimbblInItResourceListener
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys
@@ -31,7 +31,6 @@ import tech.nimbbl.checkout.sdk.NimbblCheckoutSDK
 
 class OrderCreateActivity : AppCompatActivity(),
     NimbblCheckoutPaymentListener, NimbblInItResourceListener {
-
     private var token: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,30 +42,35 @@ class OrderCreateActivity : AppCompatActivity(),
 
 
     private fun initialisation() {
-        val preferences = getSharedPreferences(APP_PREFERENCE, MODE_PRIVATE)
+        val preferences: SharedPreferences = getSharedPreferences(APP_PREFERENCE, MODE_PRIVATE)
         val appMode = preferences.getString(SAMPLE_APP_MODE, "").toString()
         if (appMode.isEmpty()) {
             val intent = Intent(this, NimbblConfigActivity::class.java)
             resultLauncher.launch(intent)
         } else {
-            BASE_URL = preferences.getString(SHOP_BASE_URL, BASE_URL).toString()
+            val shop_base_url = preferences.getString(SHOP_BASE_URL, BASE_URL).toString()
             val testMerchant =  preferences.getString(APP_TEST_MERCHANT,getString(R.string.value_native_config)).toString()
             CoroutineScope(Dispatchers.Main).launch {
                 try {
-                    var apiUrl = BASE_URL
+                    var tokenApiUrl = shop_base_url
+                    var apiUrl = shop_base_url
                     var productId =5
                     when {
-                        BASE_URL.equals("https://devshop.nimbbl.tech/api/") -> {
-                            apiUrl = "https://deverp.nimbbl.tech/api/"
+                        shop_base_url.equals("https://devshop.nimbbl.tech/api/") -> {
+                            tokenApiUrl = "https://deverp.nimbbl.tech/api/"
+                            apiUrl = "https://devapi.nimbbl.tech/api/v2/"
                         }
-                        BASE_URL.equals("https://uatshop.nimbbl.tech/api/") -> {
-                            apiUrl = "https://uaterp.nimbbl.tech/api/"
+                        shop_base_url.equals("https://uatshop.nimbbl.tech/api/") -> {
+                            tokenApiUrl = "https://uaterp.nimbbl.tech/api/"
+                            apiUrl = "https://uatapi.nimbbl.tech/api/v2/"
                         }
-                        BASE_URL.equals("https://shoppp.nimbbl.tech/api/") -> {
-                            apiUrl = "https://erppp.nimbbl.tech/api/"
+                        shop_base_url.equals("https://shoppp.nimbbl.tech/api/") -> {
+                            tokenApiUrl = "https://erppp.nimbbl.tech/api/"
+                            apiUrl = "https://apipp.nimbbl.tech/api/v2/"
                         }
-                        BASE_URL.equals("https://shop.nimbbl.tech/api/") -> {
-                            apiUrl = "https://erp.nimbbl.tech/api/"
+                        shop_base_url.equals("https://shop.nimbbl.tech/api/") -> {
+                            tokenApiUrl = "https://erp.nimbbl.tech/api/"
+                            apiUrl = "https://api.nimbbl.tech/api/v2/"
                         }
                     }
                     when{
@@ -87,22 +91,26 @@ class OrderCreateActivity : AppCompatActivity(),
                     jsonObject.put(PayloadKeys.key_product_id, productId)
                     val body: RequestBody = getAPIRequestBody(jsonObject)
                     val response = CatalogRepository().generateToken(
-                        apiUrl + "generate-demo-token",
+                        tokenApiUrl + "generate-demo-token",
                         body
                     )
                     if (response.isSuccessful) {
                         token = response.body()?.result?.token.toString()
                         Log.i("SAN", "response.body().token-->" + (response.body()?.result?.token ?: ""))
                         Log.i("SAN", "response.body().auth_principal?.skip_device_verification-->" + (response.body()?.result?.auth_principal?.skip_device_verification ?: ""))
-                        val inputInItPayload = AppPayloads.initResourcePayload(
-                            response.body()?.result?.token.toString(),
-                            application.packageName
-                        )
-                        NimbblPayCheckoutBaseSDK.getInstance(applicationContext)?.initResource(
-                            this@OrderCreateActivity,
-                            inputInItPayload,
-                            this@OrderCreateActivity
-                        )
+                        NimbblCheckoutSDK.instance?.setEnvironmentUrl(apiUrl)
+                        NimbblPayCheckoutBaseSDK.getInstance(applicationContext)?.setEnvironmentUrl(apiUrl)
+                        if(productId ==5) {
+                            val inputInItPayload = AppPayloads.initResourcePayload(
+                                response.body()?.result?.token.toString(),
+                                application.packageName
+                            )
+                            NimbblPayCheckoutBaseSDK.getInstance(applicationContext)?.initResource(
+                                this@OrderCreateActivity,
+                                inputInItPayload,
+                                this@OrderCreateActivity
+                            )
+                        }
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -140,22 +148,28 @@ class OrderCreateActivity : AppCompatActivity(),
             }else{
                 CoroutineScope(Dispatchers.Main).launch {
                     try {
-                        var apiUrl = BASE_URL
-                        val preferences = getSharedPreferences(APP_PREFERENCE, MODE_PRIVATE)
+                        val preferences: SharedPreferences = getSharedPreferences(APP_PREFERENCE, MODE_PRIVATE)
+                        val shopBaseUrl = preferences.getString(SHOP_BASE_URL, BASE_URL).toString()
+                        var tokenBaseUrl = shopBaseUrl
+                        var orderBaseUrl = shopBaseUrl
                         val testMerchant =  preferences.getString(APP_TEST_MERCHANT,getString(R.string.value_native_config)).toString()
                         var productId =5
                         when {
-                            BASE_URL.equals("https://devshop.nimbbl.tech/api/") -> {
-                                apiUrl = "https://deverp.nimbbl.tech/api/"
+                            shopBaseUrl.equals("https://devshop.nimbbl.tech/api/") -> {
+                                tokenBaseUrl = "https://deverp.nimbbl.tech/api/"
+                                orderBaseUrl = "https://devapi.nimbbl.tech/api/v2/"
                             }
-                            BASE_URL.equals("https://uatshop.nimbbl.tech/api/") -> {
-                                apiUrl = "https://uaterp.nimbbl.tech/api/"
+                            shopBaseUrl.equals("https://uatshop.nimbbl.tech/api/") -> {
+                                tokenBaseUrl = "https://uaterp.nimbbl.tech/api/"
+                                orderBaseUrl = "https://uatapi.nimbbl.tech/api/v2/"
                             }
-                            BASE_URL.equals("https://shoppp.nimbbl.tech/api/") -> {
-                                apiUrl = "https://erppp.nimbbl.tech/api/"
+                            shopBaseUrl.equals("https://shoppp.nimbbl.tech/api/") -> {
+                                tokenBaseUrl = "https://erppp.nimbbl.tech/api/"
+                                orderBaseUrl = "https://apipp.nimbbl.tech/api/v2/"
                             }
-                            BASE_URL.equals("https://shop.nimbbl.tech/api/") -> {
-                                apiUrl = "https://erp.nimbbl.tech/api/"
+                            shopBaseUrl.equals("https://shop.nimbbl.tech/api/") -> {
+                                tokenBaseUrl = "https://erp.nimbbl.tech/api/"
+                                orderBaseUrl = "https://api.nimbbl.tech/api/v2/"
                             }
                         }
                         when{
@@ -172,18 +186,19 @@ class OrderCreateActivity : AppCompatActivity(),
                                 productId = 3
                             }
                         }
-
+                        NimbblCheckoutSDK.instance?.setEnvironmentUrl(orderBaseUrl)
+                        NimbblPayCheckoutBaseSDK.getInstance(applicationContext)?.setEnvironmentUrl(orderBaseUrl)
                         val jsonObject = JSONObject()
                         jsonObject.put(PayloadKeys.key_product_id, productId.toInt())
                         val body: RequestBody = getAPIRequestBody(jsonObject)
                         val tokenResponse = CatalogRepository().generateToken(
-                            apiUrl + "generate-demo-token",
+                            tokenBaseUrl + "generate-demo-token",
                             body
                         )
                         if (tokenResponse.isSuccessful) {
                             token = tokenResponse.body()?.result?.token.toString()
                             val response = CatalogRepository().createOrder(
-                                ServiceConstants.BASE_URL + "create-order",
+                                orderBaseUrl + "create-order",
                                 productId,
                                 token.toString(),
                                 skuTitle,
@@ -208,12 +223,23 @@ class OrderCreateActivity : AppCompatActivity(),
                                     response.body()!!.sub_merchant_id.toString(),
                                     skuAmount.toInt()
                                 )
+                            }else{
+                                try {
+                                    val errorMessage = response.errorBody()?.string()
+                                    val jsonObj =  JSONObject(errorMessage)
+
+                                    Toast.makeText(this@OrderCreateActivity, jsonObj.getJSONObject("error").getString("message"), Toast.LENGTH_SHORT)
+                                        .show()
+                                }catch (e: Exception) {
+                                    Toast.makeText(this@OrderCreateActivity, "Unable to create order,\n$e", Toast.LENGTH_SHORT)
+                                        .show()
+                                }
                             }
                         }
 
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        Toast.makeText(this@OrderCreateActivity, "Unable to create order,", Toast.LENGTH_SHORT)
+                        Toast.makeText(this@OrderCreateActivity, "Unable to create order,\n$e", Toast.LENGTH_SHORT)
                             .show()
                     }
 
@@ -230,7 +256,6 @@ class OrderCreateActivity : AppCompatActivity(),
     private fun makePayment(orderId: String, subMerchantId: String, skuAmount: Int) {
         val b = com.zl.nimbblpaycoresdk.models.NimbblCheckoutOptions.Builder()
         val preferences = getSharedPreferences(APP_PREFERENCE, MODE_PRIVATE)
-
 
         val appMode = preferences.getString(SAMPLE_APP_MODE, "")
         if (appMode.equals(getString(R.string.value_webview))) {

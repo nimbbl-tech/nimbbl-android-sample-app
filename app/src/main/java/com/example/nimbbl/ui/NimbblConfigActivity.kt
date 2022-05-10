@@ -13,6 +13,7 @@ import com.example.nimbbl.utils.AppPreferenceKeys.SAMPLE_APP_MODE
 import com.example.nimbbl.utils.AppPreferenceKeys.SHOP_BASE_URL
 import com.zl.nimbblpaycoresdk.NimbblPayCheckoutBaseSDK
 import kotlinx.android.synthetic.main.activity_nimbbl_config.*
+import tech.nimbbl.checkout.sdk.NimbblCheckoutSDK
 
 
 class NimbblConfigActivity : AppCompatActivity() {
@@ -102,6 +103,8 @@ class NimbblConfigActivity : AppCompatActivity() {
             editor.putString(SAMPLE_APP_MODE, spn_app_experience.selectedItem.toString())
             editor.putString(APP_TEST_MERCHANT, spn_test_merchant.selectedItem.toString())
             editor.putString(SHOP_BASE_URL, tempBaseUrl)
+
+            NimbblCheckoutSDK.instance?.setEnvironmentUrl(apiUrl)
             NimbblPayCheckoutBaseSDK.getInstance(applicationContext)?.setEnvironmentUrl(apiUrl)
 
             val isSuccess = editor.commit()

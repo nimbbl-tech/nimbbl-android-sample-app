@@ -15,7 +15,6 @@
             <option value="$PROJECT_DIR$/../nimbbl_mobile_kit_core_android_sdk" />
           </set>
         </option>
-        <option name="resolveModulePerSourceSet" value="false" />
       </GradleProjectSettings>
     </option>
   </component>
