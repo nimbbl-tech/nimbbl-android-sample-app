@@ -14,9 +14,6 @@ fun Activity.displayToast(message: String) {
     Toast.makeText(this, message, Toast.LENGTH_LONG).show()
 }
 
-fun Activity.printLog(tag: String, message: String) {
-    Log.d(tag, message)
-}
 
 /**
  * Hide some cell phone numbers

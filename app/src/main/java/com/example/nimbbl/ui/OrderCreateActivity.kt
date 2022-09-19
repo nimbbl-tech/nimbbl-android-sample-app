@@ -20,6 +20,7 @@ import com.zl.nimbblpaycoresdk.interfaces.NimbblCheckoutPaymentListener
 import com.zl.nimbblpaycoresdk.interfaces.NimbblInItResourceListener
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys
 import com.zl.nimbblpaycoresdk.utils.getAPIRequestBody
+import com.zl.nimbblpaycoresdk.utils.printLog
 import kotlinx.android.synthetic.main.activity_order_create.*
 import kotlinx.android.synthetic.main.activity_order_create.view.*
 import kotlinx.coroutines.CoroutineScope
@@ -96,6 +97,8 @@ class OrderCreateActivity : AppCompatActivity(),
                     )
                     if (response.isSuccessful) {
                         token = response.body()?.result?.token.toString()
+                       // token ="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo0ODMsImV4cCI6MTY1Mzk4MjgyNywidG9rZW5fdHlwZSI6InRyYW5zYWN0aW9uIn0.J5ldyMo5fJ54UuTUuiSxv1-HpHAymXKTCJKwC5hAGYU";
+                       //token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo0ODMsImV4cCI6MTY1Mzk4NDU4MSwidG9rZW5fdHlwZSI6InRyYW5zYWN0aW9uIn0.1BX62gTZHQsMaBrK-yWpNYadfY7WOY7cm3V9yN-ksys"
                         Log.i("SAN", "response.body().token-->" + (response.body()?.result?.token ?: ""))
                         Log.i("SAN", "response.body().auth_principal?.skip_device_verification-->" + (response.body()?.result?.auth_principal?.skip_device_verification ?: ""))
                         NimbblCheckoutSDK.instance?.setEnvironmentUrl(apiUrl)
@@ -197,6 +200,8 @@ class OrderCreateActivity : AppCompatActivity(),
                         )
                         if (tokenResponse.isSuccessful) {
                             token = tokenResponse.body()?.result?.token.toString()
+                           // token ="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo0ODMsImV4cCI6MTY1Mzk4MjgyNywidG9rZW5fdHlwZSI6InRyYW5zYWN0aW9uIn0.J5ldyMo5fJ54UuTUuiSxv1-HpHAymXKTCJKwC5hAGYU" ;
+                           //token ="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo0ODMsImV4cCI6MTY1Mzk4NDU4MSwidG9rZW5fdHlwZSI6InRyYW5zYWN0aW9uIn0.1BX62gTZHQsMaBrK-yWpNYadfY7WOY7cm3V9yN-ksys"
                             val response = CatalogRepository().createOrder(
                                 orderBaseUrl + "create-order",
                                 productId,
@@ -275,6 +280,7 @@ class OrderCreateActivity : AppCompatActivity(),
 
 
     override fun onResourceLoaded(isLoaded: Boolean, message: String) {
+        printLog(this,"SAN","isLoaded-->$isLoaded/message-->$message")
 
     }
     override fun onPaymentFailed(data: String) {
@@ -287,7 +293,7 @@ class OrderCreateActivity : AppCompatActivity(),
 
 
     override fun onPaymentSuccess(data: MutableMap<String, Any>) {
-        Log.d("Nimbbl demo", Integer.toString(data.size))
+        printLog(this,"Nimbbl demo", data.size.toString())
         //val payload: MutableMap<String, Any>? =
         //    p0.get("payload") as MutableMap<String, Any>?
         Toast.makeText(

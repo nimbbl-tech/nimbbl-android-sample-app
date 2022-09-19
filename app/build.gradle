@@ -5,13 +5,13 @@ apply plugin: 'kotlin-kapt'
 
 
 android {
-    compileSdkVersion 32
-    buildToolsVersion '32.0.0'
+    compileSdk 33
+    buildToolsVersion '33.0.0'
 
     defaultConfig {
         applicationId "tech.nimbbl.example"
         minSdkVersion 22
-        targetSdkVersion 32
+        targetSdkVersion 33
         versionCode 4
         versionName "1.0"
 
@@ -42,15 +42,14 @@ android {
 }
 
 dependencies {
-    implementation 'com.google.android.material:material:1.5.0'
-    implementation project(path: ':nimbbl_mobile_kit_core_android_sdk')
+    implementation 'com.google.android.material:material:1.6.1'
     def retrofit_version = "2.9.0"
-    def room_version = "2.4.1"
+    def room_version = "2.4.3"
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.cardview:cardview:1.0.0'
     testImplementation 'junit:junit:4.13.2'
@@ -65,16 +64,16 @@ dependencies {
     api("com.squareup.okhttp3:logging-interceptor")
 
     ///kotlin coroutines dependency for background threading
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
     ////for rooom
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     // optional - Kotlin Extensions and Coroutines support for Room
     implementation "androidx.room:room-ktx:$room_version"
     implementation 'com.airbnb.android:lottie:3.4.1'
-    implementation 'com.github.bumptech.glide:glide:4.12.0'
-  /*  implementation 'tech.nimbbl.sdk:nimbbl-checkout-sdk:1.4.1'*/
+    implementation 'com.github.bumptech.glide:glide:4.13.2'
+   //implementation 'tech.nimbbl.sdk:nimbbl-checkout-sdk:2.0.1'
 //    implementation (name:'nimbbl-releasev1.0' , ext:'aar')
      implementation project(path: ':nimbbl_mobile_kit_android_native')
      implementation project(path: ':nimbbl_mobile_kit_core_android_sdk')

@@ -27,7 +27,6 @@ import com.example.nimbbl.ui.adapters.ListOfbankAdapter
 import com.example.nimbbl.utils.AppPayloads
 import com.example.nimbbl.utils.displayToast
 import com.example.nimbbl.utils.hidePhoneNum
-import com.example.nimbbl.utils.printLog
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -78,6 +77,7 @@ import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.value_payment_mode_wa
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.value_payment_status_failed
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.value_payment_status_success
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.value_payment_type_otp
+import com.zl.nimbblpaycoresdk.utils.printLog
 import kotlinx.android.synthetic.main.activity_nimbbl_native_payment_methods.*
 import kotlinx.android.synthetic.main.dialog_layout_common_payment.view.*
 import kotlinx.android.synthetic.main.layout_others.*
@@ -172,7 +172,7 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
     }
 
     override fun onEventReceived(data: JSONObject) {
-        printLog("SAN", "event-->" + data.getString(key_event))
+        printLog(this,"SAN", "event-->" + data.getString(key_event))
         when (data.getString(key_event)) {
 
             event_display_loader -> {
@@ -233,7 +233,7 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
                             ?.process(paymentModePayload)
                     }
                     action_paymentModes -> {
-                        printLog(
+                        printLog(this,
                             "SAN",
                             "paymentMode-->" + data.getJSONObject(key_nimbblPayload)
                                 .getJSONArray(key_paymentModes)
@@ -288,7 +288,7 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
 
                     }
                     action_initiatePayment -> {
-                        printLog("SAN", "action_initiatePayment")
+                        printLog(this,"SAN", "action_initiatePayment")
                         val paymentMode =
                             data.getJSONObject(key_nimbblPayload).getString(key_payment_mode)
                         if (paymentMode.equals(value_payment_mode_lazypay) ||
@@ -411,7 +411,7 @@ class NimbblNativePaymentMethodsActivity : AppCompatActivity(),
                                 status
                             )
                         }
-                        printLog("SAN", "Enquiry")
+                        printLog(this,"SAN", "Enquiry")
                     }
                 }
 
