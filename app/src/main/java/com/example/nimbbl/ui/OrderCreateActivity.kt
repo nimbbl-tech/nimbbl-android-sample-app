@@ -7,7 +7,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.example.nimbbl.R
 import com.example.nimbbl.network.ApiCall.Companion.BASE_URL
 import com.example.nimbbl.repository.CatalogRepository
 import com.example.nimbbl.utils.AppPayloads
@@ -21,22 +20,26 @@ import com.zl.nimbblpaycoresdk.interfaces.NimbblInItResourceListener
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys
 import com.zl.nimbblpaycoresdk.utils.getAPIRequestBody
 import com.zl.nimbblpaycoresdk.utils.printLog
-import kotlinx.android.synthetic.main.activity_order_create.*
-import kotlinx.android.synthetic.main.activity_order_create.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.RequestBody
 import org.json.JSONObject
 import tech.nimbbl.checkout.sdk.NimbblCheckoutSDK
+import tech.nimbbl.example.R
+import tech.nimbbl.example.databinding.ActivityNimbblConfigBinding
+import tech.nimbbl.example.databinding.ActivityOrderCreateBinding
 
 class OrderCreateActivity : AppCompatActivity(),
     NimbblCheckoutPaymentListener, NimbblInItResourceListener {
     private var token: String? = null
+    private lateinit var binding: ActivityOrderCreateBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_order_create)
+        binding = ActivityOrderCreateBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
         initialisation()
         setListners()
     }
@@ -122,30 +125,30 @@ class OrderCreateActivity : AppCompatActivity(),
             }
 
         }
-        tv_settings.setOnClickListener {
+        binding.tvSettings.setOnClickListener {
             val intent = Intent(this, NimbblConfigActivity::class.java)
             resultLauncher.launch(intent)
         }
     }
 
     private fun setListners() {
-        btn_buy_now.setOnClickListener {
-            val skuTitle = txt_title.text.toString().ifEmpty { "sku1" }
-            val skuAmount = txt_amount.text.toString().ifEmpty { "2" }
-            val skuDesc = txt_dscription.txt_dscription.text.toString().ifEmpty { "Convert your dreary device into a bright happy place with this wallpaper by Speedy McVroom" }
-            val userFirstName =  txt_user_first_name.text.toString().ifEmpty { "Honey" }
-            val userLastName =  txt_user_last_name.text.toString().ifEmpty { "Singh" }
-            val userEmailId =  txt_user_email_id.text.toString().ifEmpty { "honey@gmail.com" }
-            val userMobileNumber =  txt_user_mobile_number.text.toString().ifEmpty { "1234567890" }
-            val useraddressLine1 =  txt_user_address_line_1.text.toString().ifEmpty { "My address" }
-            val userAddrStreet =  txt_street.text.toString().ifEmpty { "My street" }
-            val userAddrLandmark =  txt_landmark.text.toString().ifEmpty { "My landmark" }
-            val userAddrArea =  txt_area.text.toString().ifEmpty { "My area" }
-            val userAddrCity =  txt_city.text.toString().ifEmpty { "My area" }
-            val userAddrState =  txt_state.text.toString().ifEmpty { "My area" }
-            val userAddrPin =  txt_pin_code.text.toString().ifEmpty { "1234567" }
+        binding.btnBuyNow.setOnClickListener {
+            val skuTitle = binding.txtTitle.text.toString().ifEmpty { "sku1" }
+            val skuAmount = binding.txtAmount.text.toString().ifEmpty { "2" }
+            val skuDesc = binding.txtDscription.text.toString().ifEmpty { "Convert your dreary device into a bright happy place with this wallpaper by Speedy McVroom" }
+            val userFirstName =  binding.txtUserFirstName.text.toString().ifEmpty { "Honey" }
+            val userLastName =  binding.txtUserLastName.text.toString().ifEmpty { "Singh" }
+            val userEmailId =  binding.txtUserEmailId.text.toString().ifEmpty { "honey@gmail.com" }
+            val userMobileNumber =  binding.txtUserMobileNumber.text.toString().ifEmpty { "1234567890" }
+            val useraddressLine1 =  binding.txtUserAddressLine1.text.toString().ifEmpty { "My address" }
+            val userAddrStreet =  binding.txtStreet.text.toString().ifEmpty { "My street" }
+            val userAddrLandmark =  binding.txtLandmark.text.toString().ifEmpty { "My landmark" }
+            val userAddrArea =  binding.txtArea.text.toString().ifEmpty { "My area" }
+            val userAddrCity =  binding.txtCity.text.toString().ifEmpty { "My area" }
+            val userAddrState =  binding.txtState.text.toString().ifEmpty { "My area" }
+            val userAddrPin =  binding.txtPinCode.text.toString().ifEmpty { "1234567" }
 
-            if(txt_user_mobile_number.text.toString().trim().isEmpty()) {
+            if(binding.txtUserMobileNumber.text.toString().trim().isEmpty()) {
                 Toast.makeText(this, "Please enter mobile number to proceed", Toast.LENGTH_SHORT)
                     .show()
             }else{

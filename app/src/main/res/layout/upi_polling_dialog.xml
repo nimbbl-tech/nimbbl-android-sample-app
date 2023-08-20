@@ -41,7 +41,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/black"
+        android:textColor="@android:color/black"
         android:gravity="center"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Please approve the payment request on your UPI app"/>
@@ -62,7 +62,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Step 1"
-        android:textColor="@color/black"
+        android:textColor="@android:color/black"
         android:textStyle="bold"
         android:layout_toRightOf="@+id/iv_smartphone"/>
     <TextView
@@ -71,7 +71,7 @@
         android:layout_height="wrap_content"
         android:text="Go to UPI app"
         android:layout_marginTop="2dp"
-        android:textColor="@color/black"
+        android:textColor="@android:color/black"
         android:layout_toRightOf="@+id/iv_smartphone"
         android:layout_below="@+id/tv_step1"/>
 </RelativeLayout>
@@ -91,7 +91,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Step 2"
-            android:textColor="@color/black"
+            android:textColor="@android:color/black"
             android:textStyle="bold"
             android:layout_toRightOf="@+id/iv_smartphone_with_hand"/>
         <TextView
@@ -100,7 +100,7 @@
             android:layout_height="wrap_content"
             android:text="Check Pending requests and approve payment by entering UPI PIN"
             android:layout_marginTop="2dp"
-            android:textColor="@color/black"
+            android:textColor="@android:color/black"
             android:layout_toRightOf="@+id/iv_smartphone_with_hand"
             android:layout_below="@+id/tv_step2"/>
     </RelativeLayout>

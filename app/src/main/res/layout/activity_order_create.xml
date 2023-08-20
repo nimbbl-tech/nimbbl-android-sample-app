@@ -4,12 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp"
-    tools:context=".ui.OrderCreateActivity">
+    android:padding="20dp">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:viewBindingIgnore="true">
         <LinearLayout
             android:elevation="10dp"
             android:orientation="horizontal"
@@ -33,13 +33,13 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="@drawable/ic_round_settings_24"
-                android:backgroundTint="@color/black"/>
+                android:backgroundTint="@android:color/black"/>
 
         </LinearLayout>
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/color_444"
+            android:background="@android:color/darker_gray"
             android:textColor="@color/white"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
@@ -124,7 +124,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/color_444"
+            android:background="@android:color/darker_gray"
             android:textColor="@color/white"
             android:layout_marginTop="20dp"
             android:paddingTop="10dp"
@@ -187,7 +187,7 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/color_444"
+            android:background="@android:color/darker_gray"
             android:textColor="@color/white"
             android:layout_marginTop="20dp"
             android:paddingTop="10dp"

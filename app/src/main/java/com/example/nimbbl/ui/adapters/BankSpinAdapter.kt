@@ -7,8 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
-import com.example.nimbbl.R
 import com.zl.nimbblpaycoresdk.models.Item
+import tech.nimbbl.example.R
 
 
 class BankSpinAdapter(

@@ -20,5 +20,5 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:textStyle="bold"
-        android:textColor="@color/black"/>
+        android:textColor="@android:color/black"/>
 </LinearLayout>

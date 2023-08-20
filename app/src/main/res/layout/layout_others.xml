@@ -45,7 +45,7 @@
                     android:layout_toEndOf="@+id/iv_card"
                     android:text="Credit / Debit card"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/black" />
+                    android:textColor="@android:color/black" />
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="40dp"
@@ -90,7 +90,7 @@
                     android:gravity="center"
                     android:text="NetBanking"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/black" />
+                    android:textColor="@android:color/black" />
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="40dp"
@@ -135,7 +135,7 @@
                     android:layout_toEndOf="@+id/iv_upi"
                     android:text="UPI"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/black" />
+                    android:textColor="@android:color/black" />
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="40dp"
@@ -180,7 +180,7 @@
                     android:layout_toEndOf="@+id/iv_wallet"
                     android:text="Wallet"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/black" />
+                    android:textColor="@android:color/black" />
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="40dp"

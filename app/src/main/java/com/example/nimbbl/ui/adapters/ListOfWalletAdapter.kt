@@ -7,9 +7,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.example.nimbbl.R
 import com.example.nimbbl.ui.NimbblNativePaymentMethodsActivity
 import com.zl.nimbblpaycoresdk.models.Item
+import tech.nimbbl.example.R
 
 
 /*

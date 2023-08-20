@@ -1,16 +1,20 @@
 package com.example.nimbbl.ui
 
 import android.os.Bundle
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.nimbbl.R
-import kotlinx.android.synthetic.main.activity_order_sucess_page_acitivty.*
+import tech.nimbbl.example.R
 
 class OrderSucessPageAcitivty : AppCompatActivity() {
     lateinit  var order_id :String
     lateinit  var status :String
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_order_sucess_page_acitivty)
+        setContentView(R.layout.activity_order_sucess_page)
+        var txt_orderid = findViewById<TextView>(R.id.txt_orderid)
+        var txt_status = findViewById<TextView>(R.id.txt_status)
         try {
 
             order_id = intent.getStringExtra("orderid")!!

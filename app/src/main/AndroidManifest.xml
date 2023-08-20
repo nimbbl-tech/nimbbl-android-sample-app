@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.nimbbl">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -14,7 +13,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".ui.OrderCreateActivity"
+            android:name="com.example.nimbbl.ui.OrderCreateActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,14 +22,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.NimbblNativePaymentMethodsActivity"
+            android:name="com.example.nimbbl.ui.NimbblNativePaymentMethodsActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.NimbblConfigActivity"
+            android:name="com.example.nimbbl.ui.NimbblConfigActivity"
             android:exported="false"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".ui.OrderSucessPageAcitivty"
+            android:name="com.example.nimbbl.ui.OrderSucessPageAcitivty"
             android:exported="false" />
         <meta-data
             android:name="preloaded_fonts"

@@ -9,11 +9,11 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.example.nimbbl.R
 import com.example.nimbbl.ui.NimbblNativePaymentMethodsActivity
 import com.zl.nimbblpaycoresdk.models.Item
 import com.zl.nimbblpaycoresdk.utils.PayloadKeys.Companion.value_upi_flow_mode_server_intent
 import kotlinx.coroutines.DelicateCoroutinesApi
+import tech.nimbbl.example.R
 
 class FastPaymentModeAdapter(
     private val list: List<Item>,
